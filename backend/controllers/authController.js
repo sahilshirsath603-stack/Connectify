@@ -89,7 +89,7 @@ const signup = async (req, res) => {
     // Fallback: if Redis unavailable, store in Mongo temporarily
     if (!redisStored) {
       newUser.emailVerifyOTP = hashedOtp;
-      newUser.emailVerifyOTPExpiry = new Date(Date.now() + 5 * 60 * 1000);
+      newUser.emailVerifyOTPExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 min
       await newUser.save();
     }
 
@@ -243,7 +243,7 @@ const resendOTP = async (req, res) => {
     // Fallback: store in Mongo if Redis unavailable
     if (!redisStored) {
       user.emailVerifyOTP = hashedOtp;
-      user.emailVerifyOTPExpiry = new Date(Date.now() + 5 * 60 * 1000);
+      user.emailVerifyOTPExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 min
       await user.save();
     }
 

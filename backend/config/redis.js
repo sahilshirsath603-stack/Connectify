@@ -4,6 +4,7 @@ let redisClient = null;
 let redisAvailable = false;
 let hasLoggedConnected = false;
 let hasLoggedError = false;
+let gaveUp = false;
 
 const createRedisClient = () => {
   if (redisClient) return redisClient;
@@ -14,14 +15,19 @@ const createRedisClient = () => {
     // Don't crash the app if Redis is down
     lazyConnect: true,
     retryStrategy: (times) => {
-      if (times > 3) {
-        console.warn('⚠️  Redis: Max reconnect attempts reached. OTP will use MongoDB fallback.');
+      if (times > 5) {
+        // Only warn if we never successfully connected
+        if (!hasLoggedConnected) {
+          gaveUp = true;
+          console.warn('⚠️  Redis: Max reconnect attempts reached. OTP will use MongoDB fallback.');
+        }
         return null; // stop retrying
       }
-      return Math.min(times * 500, 2000);
+      return Math.min(times * 600, 3000);
     },
     maxRetriesPerRequest: 1,
     enableReadyCheck: true,
+    connectTimeout: 10000,
   });
 
   // 'ready' fires only after the connection is fully usable (after AUTH + SELECT).

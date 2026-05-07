@@ -3,8 +3,8 @@ const bcrypt = require('bcryptjs');
 const { getRedis, isRedisAvailable } = require('../config/redis');
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const OTP_TTL_SECONDS = 5 * 60;          // 5 minutes
-const ATTEMPT_TTL_SECONDS = 5 * 60;      // 5 minutes
+const OTP_TTL_SECONDS = 10 * 60;         // 10 minutes (matches email template)
+const ATTEMPT_TTL_SECONDS = 10 * 60;     // 10 minutes
 const REQUEST_TTL_SECONDS = 5 * 60;      // 5 minutes
 const MAX_VERIFY_ATTEMPTS = parseInt(process.env.OTP_MAX_ATTEMPTS) || 5;
 const MAX_OTP_REQUESTS = parseInt(process.env.OTP_MAX_REQUESTS) || 3;
