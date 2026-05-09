@@ -12,14 +12,15 @@ const OTP_RESEND_COOLDOWN = 60;
 function VerifyOTP({ onLogin }) {
   const [searchParams] = useSearchParams();
   const emailFromParams = searchParams.get('email') || '';
+  const hadEmailError = searchParams.get('emailError') === '1';
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [email] = useState(emailFromParams);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [resendCooldown, setResendCooldown] = useState(OTP_RESEND_COOLDOWN);
-  const [canResend, setCanResend] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(hadEmailError ? 0 : OTP_RESEND_COOLDOWN);
+  const [canResend, setCanResend] = useState(hadEmailError);
 
   const inputRefs = useRef([]);
   const navigate = useNavigate();
@@ -134,6 +135,12 @@ function VerifyOTP({ onLogin }) {
           <div className="otp-icon">✉️</div>
           <div className="otp-icon-ring" />
         </div>
+
+        {hadEmailError && (
+          <div className="otp-email-warning">
+            ⚠️ We couldn't send the verification email. Please click <strong>Resend OTP</strong> below to get your code.
+          </div>
+        )}
 
         <h1 className="otp-title">Verify your email</h1>
         <p className="otp-subtitle">

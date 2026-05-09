@@ -15,6 +15,19 @@ router.post('/resend-otp', otpRequestLimiter, validateEmail, controllers.resendO
 router.post('/forgot-password', otpRequestLimiter, validateEmail, controllers.forgotPassword);
 router.post('/reset-password', validateEmail, validateNewPassword, controllers.resetPassword);
 router.get('/check-username', controllers.checkUsername);
+
+// Diagnostic: check which env vars are set (no values exposed)
+router.get('/env-check', (req, res) => {
+  res.json({
+    GMAIL_USER: process.env.GMAIL_USER ? `✅ SET (${process.env.GMAIL_USER})` : '❌ NOT SET',
+    GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD ? `✅ SET (length: ${process.env.GMAIL_APP_PASSWORD.length})` : '❌ NOT SET',
+    REDIS_URL: process.env.REDIS_URL ? '✅ SET' : '❌ NOT SET',
+    MONGO_URI: process.env.MONGO_URI ? '✅ SET' : '❌ NOT SET',
+    JWT_SECRET: process.env.JWT_SECRET ? '✅ SET' : '❌ NOT SET',
+    FRONTEND_URL: process.env.FRONTEND_URL || '❌ NOT SET',
+    NODE_ENV: process.env.NODE_ENV || 'not set',
+  });
+});
 router.get('/users', authMiddleware, controllers.getUsers);
 router.get('/presence', controllers.getPresence);
 router.get('/users/status', controllers.getUsersStatus);

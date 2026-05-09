@@ -93,11 +93,30 @@ const signup = async (req, res) => {
       await newUser.save();
     }
 
-    // Send OTP email (non-blocking — don't fail signup if email fails)
+    // Pre-check SMTP credentials before sending
+    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+      console.error('❌ SMTP credentials missing: GMAIL_USER or GMAIL_APP_PASSWORD not set in environment.');
+      // Don't delete user — keep them unverified so they can resend later
+      return res.status(201).json({
+        message: 'Account created but email delivery is not configured. Please contact support.',
+        requiresVerification: true,
+        email,
+        error: 'EMAIL_NOT_CONFIGURED',
+      });
+    }
+
+    // Send OTP email — if this fails, keep user alive so they can resend OTP
     try {
       await sendVerificationOTP(email, name, otp);
     } catch (emailErr) {
-      console.error('Failed to send OTP email:', emailErr.message);
+      console.error('❌ Failed to send OTP email:', emailErr.message);
+      // Do NOT delete the user — they can use resend-otp to retry
+      return res.status(201).json({
+        message: 'Account created but we could not send the verification email. Please try resending the OTP.',
+        requiresVerification: true,
+        email,
+        error: 'EMAIL_DELIVERY_FAILED',
+      });
     }
 
     res.status(201).json({

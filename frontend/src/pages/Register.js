@@ -27,6 +27,7 @@ function Register({ onLogin }) {
   const [avatarFile, setAvatarFile] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
 
   // Validation State
   const [usernameStatus, setUsernameStatus] = useState(null); // 'checking', 'available', 'taken', null
@@ -131,6 +132,9 @@ function Register({ onLogin }) {
     }
 
     setIsLoading(true);
+    setLoadingMessage('Creating your account…');
+    // After a moment, update message to reflect the email step
+    const emailMsgTimer = setTimeout(() => setLoadingMessage('Sending verification email…'), 2000);
 
     try {
       const formData = new FormData();
@@ -148,25 +152,35 @@ function Register({ onLogin }) {
       const res = await axios.post(
         `${getApiUrl()}/auth/signup`,
         formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          timeout: 30000, // 30s — covers slow SMTP sends
+        }
       );
 
-      // Redirect to OTP verification page
+      // Redirect to OTP verification page (even if email delivery had issues)
       if (res.data.requiresVerification) {
-        navigate(`/verify-otp?email=${encodeURIComponent(res.data.email || email)}`);
+        const emailError = res.data.error; // 'EMAIL_DELIVERY_FAILED' | 'EMAIL_NOT_CONFIGURED'
+        const params = new URLSearchParams({ email: res.data.email || email });
+        if (emailError) params.set('emailError', '1');
+        navigate(`/verify-otp?${params.toString()}`);
       } else {
-        // Fallback for backwards compatibility
         navigate('/login');
       }
 
     } catch (err) {
-      if (!err.response) {
-        setError('Network error. Check if backend is running.');
+      clearTimeout(emailMsgTimer);
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        setError('Request timed out. The server may be slow — please try again.');
+      } else if (!err.response) {
+        setError('Network error. Check your internet connection or try again.');
       } else {
-        setError(err.response?.data?.message || 'Registration failed. Please select a different email or username.');
+        setError(err.response?.data?.message || 'Registration failed. Please try a different email or username.');
       }
     } finally {
+      clearTimeout(emailMsgTimer);
       setIsLoading(false);
+      setLoadingMessage('');
     }
   };
 
@@ -365,7 +379,12 @@ function Register({ onLogin }) {
           onClick={handleSubmit}
           disabled={!isFormValid() || isLoading}
         >
-          {isLoading ? <div className="spinner" style={{ width: 20, height: 20, borderTopColor: '#fff', border: '2px solid rgba(255,255,255,0.3)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}></div> : "Create Account"}
+          {isLoading ? (
+            <span style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
+              <div className="spinner" style={{ width: 18, height: 18, borderTopColor: '#fff', border: '2px solid rgba(255,255,255,0.3)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', flexShrink: 0 }}></div>
+              <span style={{ fontSize: '14px' }}>{loadingMessage || 'Creating account…'}</span>
+            </span>
+          ) : "Create Account"}
         </button>
 
         <div className="register-footer">
