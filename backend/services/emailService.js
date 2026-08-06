@@ -1,3 +1,5 @@
+const nodemailer = require('nodemailer');
+
 // ─── Shared Email Styles ─────────────────────────────────────────────────────
 const emailWrapper = (content) => `
 <!DOCTYPE html>
@@ -42,45 +44,52 @@ const emailWrapper = (content) => `
 </html>
 `;
 
-// ─── Resend HTTP API Sender ──────────────────────────────────────────────────
-const sendEmailHTTP = async ({ to, subject, html, text }) => {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    throw new Error('RESEND_API_KEY is not set');
+// ─── Brevo SMTP Transporter Creation ─────────────────────────────────────────
+const createTransporter = () => {
+  const host = process.env.BREVO_SMTP_HOST || 'smtp-relay.brevo.com';
+  const port = parseInt(process.env.BREVO_SMTP_PORT, 10) || 587;
+  const user = process.env.BREVO_SMTP_USER;
+  const pass = process.env.BREVO_SMTP_PASS;
+
+  if (!user || !pass) {
+    throw new Error('Brevo SMTP credentials missing: BREVO_SMTP_USER and BREVO_SMTP_PASS must be configured in environment variables.');
   }
 
-  // Note: if you don't have a custom domain on Resend, you MUST use onboarding@resend.dev
-  // and you can ONLY send emails to the email address you registered with Resend.
-  const fromEmail = process.env.EMAIL_FROM || 'onboarding@resend.dev';
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465,
+    auth: {
+      user,
+      pass,
+    },
+  });
+};
+
+// ─── Email Sender (Brevo SMTP) ───────────────────────────────────────────────
+const sendEmail = async ({ to, subject, html, text }) => {
+  const fromEmail = process.env.EMAIL_FROM;
+
+  if (!fromEmail) {
+    throw new Error('EMAIL_FROM environment variable is not configured.');
+  }
 
   try {
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: `Connectify <${fromEmail}>`,
-        to: [to],
-        subject: subject,
-        html: html,
-        text: text,
-      }),
-      // Native fetch timeout (optional, though standard fetch doesn't support timeout natively like axios without AbortController.
-      // Render has its own request limits, so standard fetch is fine for this lightweight API call).
+    const transporter = createTransporter();
+
+    const info = await transporter.sendMail({
+      from: `Connectify <${fromEmail}>`,
+      to,
+      subject,
+      html,
+      text,
     });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(errorData ? JSON.stringify(errorData) : `HTTP error! status: ${response.status}`);
-    }
-    
-    const responseData = await response.json();
-    return responseData;
+
+    console.log(`📧 Email sent successfully to ${to} [Message ID: ${info.messageId}]`);
+    return info;
   } catch (error) {
-    console.error('❌ Resend API Error:', error.message);
-    throw new Error('Failed to send email via HTTP API');
+    console.error(`❌ Brevo SMTP Error while sending email to ${to}:`, error.message);
+    throw new Error(`Failed to send email via Brevo SMTP: ${error.message}`);
   }
 };
 
@@ -98,14 +107,14 @@ const sendVerificationOTP = async (email, name, otp) => {
     </div>
   `);
 
-  await sendEmailHTTP({
+  await sendEmail({
     to: email,
     subject: `${otp} is your Connectify verification code`,
     html,
     text: `Your Connectify verification OTP is: ${otp}. It expires in 10 minutes.`,
   });
 
-  console.log(`✅ Verification OTP sent to ${email} via Resend`);
+  console.log(`✅ Verification OTP sent to ${email}`);
 };
 
 // ─── Send Password Reset Email ───────────────────────────────────────────────
@@ -122,14 +131,14 @@ const sendPasswordResetEmail = async (email, name, resetLink) => {
     </div>
   `);
 
-  await sendEmailHTTP({
+  await sendEmail({
     to: email,
     subject: 'Reset your Connectify password',
     html,
     text: `Reset your Connectify password using this link: ${resetLink}. It expires in 30 minutes.`,
   });
 
-  console.log(`✅ Password reset email sent to ${email} via Resend`);
+  console.log(`✅ Password reset email sent to ${email}`);
 };
 
 // ─── Send Welcome Email ──────────────────────────────────────────────────────
@@ -145,7 +154,7 @@ const sendWelcomeEmail = async (email, name) => {
     </ul>
   `);
 
-  await sendEmailHTTP({
+  await sendEmail({
     to: email,
     subject: '✦ Welcome to Connectify!',
     html,
@@ -154,4 +163,3 @@ const sendWelcomeEmail = async (email, name) => {
 };
 
 module.exports = { sendVerificationOTP, sendPasswordResetEmail, sendWelcomeEmail };
-
