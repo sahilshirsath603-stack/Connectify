@@ -271,7 +271,7 @@ const resendOTP = async (req, res) => {
       await sendVerificationOTP(email, user.name, otp);
     } catch (emailErr) {
       console.error('Failed to resend OTP:', emailErr.message);
-      return res.status(500).json({ message: 'Failed to send OTP email. Check server email config.' });
+      return res.status(500).json({ message: emailErr.message || 'Failed to send OTP email. Check server email config.' });
     }
 
     res.json({
@@ -316,7 +316,7 @@ const forgotPassword = async (req, res) => {
       await sendPasswordResetEmail(email, user.name, resetLink);
     } catch (emailErr) {
       console.error('Failed to send reset email:', emailErr.message);
-      return res.status(500).json({ message: 'Failed to send reset email. Check server email config.' });
+      return res.status(500).json({ message: emailErr.message || 'Failed to send reset email. Check server email config.' });
     }
 
     res.json({ message: 'If that email exists, a reset link has been sent.' });
