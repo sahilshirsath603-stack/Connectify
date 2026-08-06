@@ -19,10 +19,11 @@ router.get('/check-username', controllers.checkUsername);
 // Diagnostic: check which env vars are set (no values exposed)
 router.get('/env-check', (req, res) => {
   res.json({
-    RESEND_API_KEY: process.env.RESEND_API_KEY ? `✅ SET (length: ${process.env.RESEND_API_KEY.length})` : '❌ NOT SET',
-    EMAIL_FROM: process.env.EMAIL_FROM || '❌ NOT SET (using default onboarding@resend.dev)',
-    GMAIL_USER: process.env.GMAIL_USER ? `✅ SET (${process.env.GMAIL_USER})` : '❌ NOT SET',
-    GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD ? '✅ SET' : '❌ NOT SET',
+    BREVO_SMTP_HOST: process.env.BREVO_SMTP_HOST || 'smtp-relay.brevo.com',
+    BREVO_SMTP_PORT: process.env.BREVO_SMTP_PORT || '587',
+    BREVO_SMTP_USER: process.env.BREVO_SMTP_USER ? `✅ SET (${process.env.BREVO_SMTP_USER})` : '❌ NOT SET',
+    BREVO_SMTP_PASS: process.env.BREVO_SMTP_PASS ? '✅ SET' : '❌ NOT SET',
+    EMAIL_FROM: process.env.EMAIL_FROM || '❌ NOT SET',
     REDIS_URL: process.env.REDIS_URL ? '✅ SET' : '❌ NOT SET',
     MONGO_URI: process.env.MONGO_URI ? '✅ SET' : '❌ NOT SET',
     JWT_SECRET: process.env.JWT_SECRET ? '✅ SET' : '❌ NOT SET',

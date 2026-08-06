@@ -94,9 +94,9 @@ const signup = async (req, res) => {
     }
 
     // Pre-check email API / SMTP credentials before sending
-    const isEmailConfigured = process.env.RESEND_API_KEY || (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD);
+    const isEmailConfigured = process.env.BREVO_SMTP_USER && process.env.BREVO_SMTP_PASS;
     if (!isEmailConfigured) {
-      console.error('❌ Email credentials missing: neither RESEND_API_KEY nor GMAIL_USER & GMAIL_APP_PASSWORD set in environment.');
+      console.error('❌ Email credentials missing: BREVO_SMTP_USER and BREVO_SMTP_PASS are not set in environment.');
       // Don't delete user — keep them unverified so they can resend later
       return res.status(201).json({
         message: 'Account created but email delivery is not configured. Please contact support.',
