@@ -47,7 +47,8 @@ const emailWrapper = (content) => `
 // ─── Brevo SMTP Transporter Creation ─────────────────────────────────────────
 const createTransporter = () => {
   const host = process.env.BREVO_SMTP_HOST || 'smtp-relay.brevo.com';
-  const port = parseInt(process.env.BREVO_SMTP_PORT, 10) || 587;
+  // Default to port 465 (SSL) for cloud platforms like Render where port 587 STARTTLS times out
+  const port = parseInt(process.env.BREVO_SMTP_PORT, 10) || 465;
   const user = process.env.BREVO_SMTP_USER;
   const pass = process.env.BREVO_SMTP_PASS;
 
@@ -62,6 +63,9 @@ const createTransporter = () => {
     auth: {
       user,
       pass,
+    },
+    tls: {
+      rejectUnauthorized: false,
     },
     connectionTimeout: 10000,
     greetingTimeout: 10000,
