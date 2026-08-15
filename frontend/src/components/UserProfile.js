@@ -59,7 +59,7 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
   const handleConnectRequest = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/connections/request`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/connections/request`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -82,7 +82,7 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
   const confirmDisconnectAction = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/connections/${user._id}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/connections/${user._id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`
@@ -368,14 +368,14 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
 
               {isSelf && (
                 <div className="vibe-picker">
-                  <p className="vibe-hint">Set a temporary mood (lasts 1 hour)</p>
+                  <p className="vibe-hint">Set your current vibe (lasts 24 hours — change anytime)</p>
                   <div className="vibe-badges">
                     {AURA_PRESETS.map((preset) => (
                       <button
                         key={preset.type}
                         onClick={() => {
                           if (onSetAura) {
-                            const expiresAt = new Date(Date.now() + 3600 * 1000);
+                            const expiresAt = new Date(Date.now() + 24 * 3600 * 1000);
                             onSetAura({ ...preset, expiresAt });
                           }
                         }}

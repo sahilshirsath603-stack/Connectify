@@ -29,7 +29,7 @@ export default function UserCard({ user, currentUser, sentRequests, isOnline, is
         e.stopPropagation(); // Prevent opening profile when clicking connect
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/connections/request`, {
+            const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/connections/request`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -62,7 +62,7 @@ export default function UserCard({ user, currentUser, sentRequests, isOnline, is
     const confirmDisconnectAction = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/connections/${user._id}`, {
+            const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/connections/${user._id}`, {
                 method: "DELETE",
                 headers: {
                     Authorization: `Bearer ${token}`

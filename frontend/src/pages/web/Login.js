@@ -34,7 +34,7 @@ function Login({ onLogin }) {
 
     try {
       const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const LOCAL_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'http://10.0.2.2:5000/api';
+      const LOCAL_URL = window.location.hostname === 'localhost' ? 'http://localhost:5001/api' : 'http://10.0.2.2:5000/api';
       const LIVE_URL = 'https://chhay-achaaya-backend.onrender.com/api';
       const apiUrl = process.env.REACT_APP_API_URL || (isLocal ? LOCAL_URL : LIVE_URL);
       const res = await axios.post(

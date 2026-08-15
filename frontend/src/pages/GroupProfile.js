@@ -89,7 +89,7 @@ function GroupProfile({ groupId, token, users, onClose }) {
 
   const fetchGroupDetails = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/groups/${groupId}`, {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/groups/${groupId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setGroup(response.data);
@@ -101,7 +101,7 @@ function GroupProfile({ groupId, token, users, onClose }) {
 
   const fetchGroupMedia = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/groups/${groupId}/media`, {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/groups/${groupId}/media`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMedia(response.data);
@@ -163,7 +163,7 @@ function GroupProfile({ groupId, token, users, onClose }) {
 
   const fetchFriends = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/connections/friends`, {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/connections/friends`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       // Filter out existing members
@@ -182,7 +182,7 @@ function GroupProfile({ groupId, token, users, onClose }) {
     setAddingMember(true);
     try {
       for (const userId of selectedUsers) {
-        await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/groups/${groupId}/members`, {
+        await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/groups/${groupId}/members`, {
           userId
         }, {
           headers: { Authorization: `Bearer ${token}` }
@@ -206,7 +206,7 @@ function GroupProfile({ groupId, token, users, onClose }) {
 
     setRemovingMember(userId);
     try {
-      await axios.delete(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/groups/${groupId}/members/${userId}`, {
+      await axios.delete(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/groups/${groupId}/members/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       // Refresh group details
@@ -233,7 +233,7 @@ function GroupProfile({ groupId, token, users, onClose }) {
 
     setRenaming(true);
     try {
-      await axios.put(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/groups/${groupId}/rename`, {
+      await axios.put(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/groups/${groupId}/rename`, {
         name: newGroupName.trim()
       }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -272,7 +272,7 @@ function GroupProfile({ groupId, token, users, onClose }) {
       const formData = new FormData();
       formData.append('avatar', croppedBlob);
 
-      const response = await axios.put(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/groups/${groupId}/update`, formData, {
+      const response = await axios.put(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/groups/${groupId}/update`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'

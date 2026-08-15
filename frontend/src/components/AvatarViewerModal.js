@@ -73,7 +73,7 @@ const AvatarViewerModal = ({ user, group, currentUser, onClose, onProfileUpdate 
         // For groups, use the group update endpoint
         const formData = new FormData();
         formData.append('avatar', croppedBlob);
-        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/groups/${group._id}/update`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/groups/${group._id}/update`, {
           method: 'PUT',
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,

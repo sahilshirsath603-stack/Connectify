@@ -21,10 +21,10 @@ export default function Home({ token }) {
             const tokenHeaders = { headers: { Authorization: `Bearer ${token}` } };
             try {
                 const [meRes, allUsersRes, sentRes, presenceRes] = await Promise.all([
-                    axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/me`, tokenHeaders),
-                    axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/users`, tokenHeaders),
-                    axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/connections/sent`, tokenHeaders),
-                    axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/auth/presence`, tokenHeaders)
+                    axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/me`, tokenHeaders),
+                    axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/users`, tokenHeaders),
+                    axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/connections/sent`, tokenHeaders),
+                    axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/auth/presence`, tokenHeaders)
                 ]);
 
                 setCurrentUser(meRes.data);
@@ -68,8 +68,8 @@ export default function Home({ token }) {
         socket.on('connection-accepted', () => {
             // Re-fetch users to remove the newly connected user from Home
             const fetchData = async () => {
-                const me = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/me`, { headers: { Authorization: `Bearer ${token}` } });
-                const allUsers = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/users`, { headers: { Authorization: `Bearer ${token}` } });
+                const me = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/me`, { headers: { Authorization: `Bearer ${token}` } });
+                const allUsers = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/users`, { headers: { Authorization: `Bearer ${token}` } });
                 setCurrentUser(me.data);
                 const filtered = allUsers.data.filter(user => user._id !== me.data._id);
                 setUsers(filtered);
@@ -120,7 +120,7 @@ export default function Home({ token }) {
         const delayDebounceFn = setTimeout(async () => {
             setIsSearching(true);
             try {
-                const res = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/users/search?username=${searchQuery.trim()}`, {
+                const res = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/users/search?username=${searchQuery.trim()}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setSearchResults(res.data);

@@ -44,7 +44,7 @@ export default function Notifications({ token }) {
 
     const fetchRequests = async () => {
         try {
-            const res = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/connections/all`, {
+            const res = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/connections/all`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setRequests(res.data);
@@ -55,7 +55,7 @@ export default function Notifications({ token }) {
 
     const fetchNotifications = async () => {
         try {
-            const res = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/notifications`, {
+            const res = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/notifications`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setGeneralNotifications(res.data);
@@ -66,7 +66,7 @@ export default function Notifications({ token }) {
 
     const handleAccept = async (requestId) => {
         try {
-            await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/connections/accept/${requestId}`, {}, {
+            await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/connections/accept/${requestId}`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -81,7 +81,7 @@ export default function Notifications({ token }) {
 
     const handleDecline = async (requestId) => {
         try {
-            await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/connections/decline/${requestId}`, {}, {
+            await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/connections/decline/${requestId}`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -96,7 +96,7 @@ export default function Notifications({ token }) {
 
     const handleMarkAllRead = async () => {
         try {
-            await axios.put(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/notifications/read`, {}, {
+            await axios.put(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/notifications/read`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
@@ -109,7 +109,7 @@ export default function Notifications({ token }) {
 
     const handleClearAll = async () => {
         try {
-            await axios.delete(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/notifications`, {
+            await axios.delete(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/notifications`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             

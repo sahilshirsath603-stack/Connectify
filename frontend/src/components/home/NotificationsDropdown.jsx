@@ -28,7 +28,7 @@ export default function NotificationsDropdown({ token }) {
 
     const fetchRequests = async () => {
         try {
-            const res = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/connections/pending`, {
+            const res = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/connections/pending`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setRequests(res.data);
@@ -39,7 +39,7 @@ export default function NotificationsDropdown({ token }) {
 
     const handleAccept = async (requestId) => {
         try {
-            await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/connections/accept/${requestId}`, {}, {
+            await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/connections/accept/${requestId}`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 

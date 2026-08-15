@@ -12,7 +12,7 @@ const userActivity = new Map(); // userId -> { lastMessageTimes: [], typingStart
 
 const checkAndSetAura = async (userId, type, label, color, icon) => {
   try {
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
     const userFields = {
       'aura.type': type,
       'aura.label': label,
@@ -293,12 +293,13 @@ const initializeSocket = (io) => {
 
       socket.on('set-aura', async ({ type, label, color, icon, expiresAt }) => {
         try {
+          const finalExpiresAt = type ? (expiresAt || new Date(Date.now() + 24 * 60 * 60 * 1000)) : null;
           const userFields = { 
             'aura.type': type, 
             'aura.label': label,
             'aura.color': color, 
             'aura.icon': icon, 
-            'aura.expiresAt': expiresAt 
+            'aura.expiresAt': finalExpiresAt 
           };
           const updatedUser = await User.findByIdAndUpdate(userId, { $set: userFields }, { new: true });
           if (updatedUser) {

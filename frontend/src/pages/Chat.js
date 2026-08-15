@@ -79,7 +79,7 @@ function Chat({ token, onLogout, theme, toggleTheme }) {
 
   // Initialize socket once
   useEffect(() => {
-    socketRef.current = io(process.env.REACT_APP_SOCKET_URL || 'http://localhost:5000', {
+    socketRef.current = io(process.env.REACT_APP_SOCKET_URL || 'http://localhost:5001', {
       auth: {
         token: localStorage.getItem("token"),
       },
@@ -409,7 +409,7 @@ function Chat({ token, onLogout, theme, toggleTheme }) {
 
     const fetchPresence = () => {
       axios
-        .get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/auth/presence`, {
+        .get(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/auth/presence`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -646,7 +646,7 @@ function Chat({ token, onLogout, theme, toggleTheme }) {
     if (!token) return;
 
     axios
-      .get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/groups`, {
+      .get(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/groups`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -682,7 +682,7 @@ function Chat({ token, onLogout, theme, toggleTheme }) {
 
     setIsLoadingMedia(true);
     axios
-      .get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/media`, {
+      .get(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/media`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -794,7 +794,7 @@ function Chat({ token, onLogout, theme, toggleTheme }) {
 
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/upload`,
+        `${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/upload`,
         formData,
         {
           headers: {
@@ -928,7 +928,7 @@ function Chat({ token, onLogout, theme, toggleTheme }) {
 
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/upload`,
+        `${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/upload`,
         formData,
         {
           headers: {
@@ -978,7 +978,7 @@ function Chat({ token, onLogout, theme, toggleTheme }) {
 
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/upload`,
+        `${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/upload`,
         formData,
         {
           headers: {
@@ -1056,7 +1056,7 @@ function Chat({ token, onLogout, theme, toggleTheme }) {
 
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/upload`,
+        `${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/upload`,
         formData,
         {
           headers: {
@@ -1088,7 +1088,7 @@ function Chat({ token, onLogout, theme, toggleTheme }) {
   // Open group profile
   const openGroupProfile = async (groupId) => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/groups/${groupId}`, {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/groups/${groupId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setGroupProfileData(response.data);

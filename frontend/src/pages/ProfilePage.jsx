@@ -19,8 +19,8 @@ export default function ProfilePage({ token }) {
                 
                 // Fetch me and presence in parallel
                 const [meRes, presenceRes] = await Promise.all([
-                    axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/me`, tokenHeaders),
-                    axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/auth/presence`, tokenHeaders)
+                    axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/me`, tokenHeaders),
+                    axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/auth/presence`, tokenHeaders)
                 ]);
                 
                 setCurrentUser(meRes.data);
@@ -39,7 +39,7 @@ export default function ProfilePage({ token }) {
                 setUserStatuses(statusMap);
 
                 if (id && id !== meRes.data._id) {
-                    const userRes = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/users/${id}`, tokenHeaders);
+                    const userRes = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/users/${id}`, tokenHeaders);
                     setDisplayUser(userRes.data);
                 } else {
                     setDisplayUser(meRes.data);
