@@ -151,11 +151,14 @@ function Register({ onLogin }) {
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
 
-      // Redirect to OTP verification page
-      if (res.data.requiresVerification) {
-        navigate(`/verify-otp?email=${encodeURIComponent(res.data.email || email)}`);
+      if (res.data.token) {
+        if (onLogin) {
+          onLogin(res.data.token);
+        } else {
+          localStorage.setItem('token', res.data.token);
+        }
+        navigate('/home');
       } else {
-        // Fallback for backwards compatibility
         navigate('/login');
       }
 

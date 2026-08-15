@@ -70,8 +70,8 @@ function AppMobile() {
       <Routes>
         {/* Public */}
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/verify-otp" element={<VerifyOTP onLogin={handleLogin} />} />
+        <Route path="/register" element={<Register onLogin={handleLogin} />} />
+        <Route path="/verify-otp" element={<Navigate to={token ? "/home" : "/login"} replace />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 

@@ -67,10 +67,6 @@ const signup = async (req, res) => {
       avatarUrl = req.file.path;
     }
 
-    // Generate & store OTP securely
-    const otp = otpService.generateOTP();
-    const hashedOtp = await otpService.hashOTP(otp);
-
     const newUser = await User.create({
       name,
       username,
@@ -80,50 +76,28 @@ const signup = async (req, res) => {
       defaultMood: defaultMood || null,
       interests: parsedInterests,
       avatar: avatarUrl,
-      isVerified: false, // must verify via OTP
+      isVerified: true,
     });
 
-    // Store hashed OTP in Redis (5 min TTL)
-    const redisStored = await otpService.storeOTP(newUser._id.toString(), hashedOtp);
-
-    // Fallback: if Redis unavailable, store in Mongo temporarily
-    if (!redisStored) {
-      newUser.emailVerifyOTP = hashedOtp;
-      newUser.emailVerifyOTPExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 min
-      await newUser.save();
-    }
-
-    // Pre-check email API / SMTP credentials before sending
-    const isEmailConfigured = process.env.BREVO_SMTP_USER && process.env.BREVO_SMTP_PASS;
-    if (!isEmailConfigured) {
-      console.error('❌ Email credentials missing: BREVO_SMTP_USER and BREVO_SMTP_PASS are not set in environment.');
-      // Don't delete user — keep them unverified so they can resend later
-      return res.status(201).json({
-        message: 'Account created but email delivery is not configured. Please contact support.',
-        requiresVerification: true,
-        email,
-        error: 'EMAIL_NOT_CONFIGURED',
-      });
-    }
-
-    // Send OTP email — if this fails, keep user alive so they can resend OTP
+    // Send welcome email (non-blocking)
     try {
-      await sendVerificationOTP(email, name, otp);
-    } catch (emailErr) {
-      console.error('❌ Failed to send OTP email:', emailErr.message);
-      // Do NOT delete the user — they can use resend-otp to retry
-      return res.status(201).json({
-        message: 'Account created but we could not send the verification email. Please try resending the OTP.',
-        requiresVerification: true,
-        email,
-        error: 'EMAIL_DELIVERY_FAILED',
-      });
-    }
+      if (process.env.BREVO_SMTP_USER && process.env.BREVO_SMTP_PASS) {
+        sendWelcomeEmail(email, name).catch(() => {});
+      }
+    } catch (_) {}
+
+    const token = signToken(newUser._id);
 
     res.status(201).json({
-      message: 'Account created. Please verify your email with the OTP sent to ' + email,
-      requiresVerification: true,
-      email,
+      message: 'Account created successfully',
+      token,
+      user: {
+        _id: newUser._id,
+        name: newUser.name,
+        username: newUser.username,
+        email: newUser.email,
+        avatar: newUser.avatar,
+      },
     });
   } catch (err) {
     console.error('Signup error:', err);
@@ -155,15 +129,6 @@ const login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
-    }
-
-    // Check email verification
-    if (!user.isVerified) {
-      return res.status(403).json({
-        message: 'Please verify your email before logging in.',
-        requiresVerification: true,
-        email: user.email,
-      });
     }
 
     const token = signToken(user._id);

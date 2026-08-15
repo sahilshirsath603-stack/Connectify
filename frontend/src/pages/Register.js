@@ -133,8 +133,6 @@ function Register({ onLogin }) {
 
     setIsLoading(true);
     setLoadingMessage('Creating your account…');
-    // After a moment, update message to reflect the email step
-    const emailMsgTimer = setTimeout(() => setLoadingMessage('Sending verification email…'), 2000);
 
     try {
       const formData = new FormData();
@@ -154,22 +152,22 @@ function Register({ onLogin }) {
         formData,
         {
           headers: { 'Content-Type': 'multipart/form-data' },
-          timeout: 30000, // 30s — covers slow SMTP sends
+          timeout: 30000,
         }
       );
 
-      // Redirect to OTP verification page (even if email delivery had issues)
-      if (res.data.requiresVerification) {
-        const emailError = res.data.error; // 'EMAIL_DELIVERY_FAILED' | 'EMAIL_NOT_CONFIGURED'
-        const params = new URLSearchParams({ email: res.data.email || email });
-        if (emailError) params.set('emailError', '1');
-        navigate(`/verify-otp?${params.toString()}`);
+      if (res.data.token) {
+        if (onLogin) {
+          onLogin(res.data.token);
+        } else {
+          localStorage.setItem('token', res.data.token);
+        }
+        navigate('/home');
       } else {
         navigate('/login');
       }
 
     } catch (err) {
-      clearTimeout(emailMsgTimer);
       if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
         setError('Request timed out. The server may be slow — please try again.');
       } else if (!err.response) {
@@ -178,7 +176,6 @@ function Register({ onLogin }) {
         setError(err.response?.data?.message || 'Registration failed. Please try a different email or username.');
       }
     } finally {
-      clearTimeout(emailMsgTimer);
       setIsLoading(false);
       setLoadingMessage('');
     }

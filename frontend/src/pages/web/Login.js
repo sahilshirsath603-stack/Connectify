@@ -55,11 +55,7 @@ function Login({ onLogin }) {
       if (onLogin) onLogin(token);
       navigate('/home');
     } catch (err) {
-      if (err.response?.status === 403 && err.response?.data?.requiresVerification) {
-        // Not verified — redirect to OTP page
-        navigate(`/verify-otp?email=${encodeURIComponent(err.response.data.email || email)}`);
-        return;
-      } else if (err.response?.status === 401 || err.response?.status === 400) {
+      if (err.response?.status === 401 || err.response?.status === 400 || err.response?.status === 403) {
         setError('Invalid email or password');
       } else if (err.response?.status === 500) {
         setError('Server error. Please try again later.');
