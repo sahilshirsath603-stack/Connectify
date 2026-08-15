@@ -133,7 +133,21 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Internal Server Error' });
 });
 
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 5000;
+
+const startServer = (portToUse) => {
+  const srv = server.listen(portToUse, () => {
+    console.log(`🚀 Server running on port ${portToUse}`);
+  });
+
+  srv.on('error', (err) => {
+    if (err.code === 'EACCES' || err.code === 'EADDRINUSE') {
+      console.warn(`⚠️ Port ${portToUse} permission denied or in use (${err.code}). Trying port ${portToUse + 1}...`);
+      startServer(portToUse + 1);
+    } else {
+      console.error('Server error:', err);
+    }
+  });
+};
+
+startServer(DEFAULT_PORT);
