@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { updateProfile, uploadAvatar, getRoomArchives } from '../services/api';
+import { updateProfile, uploadAvatar, getRoomArchives, updateAura } from '../services/api';
 import '../styles/UserProfile.css';
 import AvatarCropModal from './AvatarCropModal';
 import AvatarViewerModal from './AvatarViewerModal';
@@ -41,7 +41,18 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
   
   const isOnline = userStatuses[user?._id]?.online;
 
-  const isSelf = currentUser && user && currentUser._id === user._id;
+  const isSelf = Boolean(
+    currentUser && user && (
+      currentUser._id?.toString() === user._id?.toString() ||
+      currentUser.email === user.email
+    )
+  );
+
+  const [localAura, setLocalAura] = useState(user?.aura || null);
+
+  useEffect(() => {
+    setLocalAura(user?.aura || null);
+  }, [user?.aura]);
 
   const [roomArchives, setRoomArchives] = useState([]);
   const [isPending, setIsPending] = useState(false);
@@ -182,8 +193,27 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
 
   if (!user) return null;
 
-  const hasAura = user.aura && user.aura.type;
-  const auraColor = hasAura ? user.aura.color : "transparent";
+  const hasAura = Boolean(localAura && localAura.type);
+  const auraColor = hasAura ? localAura.color : "transparent";
+
+  const handleVibeClick = async (preset) => {
+    const expiresAt = new Date(Date.now() + 24 * 3600 * 1000);
+    const newAuraData = preset
+      ? { type: preset.type, label: preset.label, color: preset.color, icon: preset.icon, expiresAt }
+      : { type: null, label: null, color: null, icon: null, expiresAt: null };
+    setLocalAura(newAuraData);
+    if (onSetAura) {
+      onSetAura(newAuraData);
+    }
+    try {
+      const updatedUser = await updateAura(newAuraData);
+      if (onProfileUpdate && updatedUser) {
+        onProfileUpdate(updatedUser);
+      }
+    } catch (err) {
+      console.error("Error persisting vibe via API:", err);
+    }
+  };
   
   // Mock activity data
   const recentActivities = [
@@ -359,8 +389,8 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
               
               {hasAura ? (
                 <div className="current-vibe-display" style={{ background: `linear-gradient(135deg, ${auraColor}22, ${auraColor}44)`, borderLeft: `3px solid ${auraColor}` }}>
-                  <span className="vibe-icon">{user.aura.icon}</span>
-                  <span className="vibe-text">{AURA_PRESETS.find(p => p.type === user.aura.type)?.label || 'Vibing'}</span>
+                  <span className="vibe-icon">{localAura?.icon}</span>
+                  <span className="vibe-text">{AURA_PRESETS.find(p => p.type === localAura?.type)?.label || localAura?.label || 'Vibing'}</span>
                 </div>
               ) : (
                 <div className="current-vibe-empty">No vibe set</div>
@@ -373,13 +403,9 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
                     {AURA_PRESETS.map((preset) => (
                       <button
                         key={preset.type}
-                        onClick={() => {
-                          if (onSetAura) {
-                            const expiresAt = new Date(Date.now() + 24 * 3600 * 1000);
-                            onSetAura({ ...preset, expiresAt });
-                          }
-                        }}
-                        className={`vibe-badge ${user.aura?.type === preset.type ? 'active' : ''}`}
+                        type="button"
+                        onClick={() => handleVibeClick(preset)}
+                        className={`vibe-badge ${localAura?.type === preset.type ? 'active' : ''}`}
                         style={{
                           '--vibe-color': preset.color
                         }}
@@ -387,9 +413,10 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
                         {preset.label}
                       </button>
                     ))}
-                    {user.aura?.type && (
+                    {localAura?.type && (
                       <button
-                        onClick={() => onSetAura && onSetAura({ type: null, color: null, icon: null, expiresAt: null })}
+                        type="button"
+                        onClick={() => handleVibeClick(null)}
                         className="vibe-badge clear-vibe"
                       >
                         Clear

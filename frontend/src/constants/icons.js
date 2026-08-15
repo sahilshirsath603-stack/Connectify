@@ -19,5 +19,17 @@ export const APP_ICONS = {
     link: "Link",
     rooms: "Flame",
     mapPin: "MapPin",
-    file: "File"
+    file: "File",
+    eye: "Eye",
+    eyeOff: "EyeOff",
+    warning: "AlertTriangle",
+    checkCircle: "CheckCircle",
+    xCircle: "XCircle",
+    check: "Check",
+    camera: "Camera",
+    user: "User",
+    atSign: "AtSign",
+    mail: "Mail",
+    lock: "Lock",
+    activity: "Activity"
 };

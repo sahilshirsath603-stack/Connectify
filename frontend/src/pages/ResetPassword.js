@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import Icon from '../components/ui/Icon';
+import { APP_ICONS } from '../constants/icons';
 import './ForgotPassword.css'; /* reuse same CSS */
 
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -74,7 +76,7 @@ function ResetPassword() {
         {error && <div className="fp-error">{error}</div>}
 
         <form onSubmit={handleSubmit} className="fp-form">
-          <div className="fp-input-group">
+          <div className="fp-input-group" style={{ position: 'relative' }}>
             <input
               id="rp-new-password"
               type={showPass ? 'text' : 'password'}
@@ -84,9 +86,17 @@ function ResetPassword() {
               onChange={e => { setNewPassword(e.target.value); setError(''); }}
               disabled={isLoading}
               autoFocus
+              style={{ paddingRight: '44px' }}
             />
+            <button
+              type="button"
+              onClick={() => setShowPass(!showPass)}
+              style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', padding: '4px', display: 'flex', alignItems: 'center' }}
+            >
+              <Icon name={showPass ? APP_ICONS.eyeOff : APP_ICONS.eye} size={18} />
+            </button>
           </div>
-          <div className="fp-input-group">
+          <div className="fp-input-group" style={{ position: 'relative' }}>
             <input
               id="rp-confirm-password"
               type={showPass ? 'text' : 'password'}
@@ -95,12 +105,16 @@ function ResetPassword() {
               value={confirmPassword}
               onChange={e => { setConfirmPassword(e.target.value); setError(''); }}
               disabled={isLoading}
+              style={{ paddingRight: '44px' }}
             />
+            <button
+              type="button"
+              onClick={() => setShowPass(!showPass)}
+              style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', padding: '4px', display: 'flex', alignItems: 'center' }}
+            >
+              <Icon name={showPass ? APP_ICONS.eyeOff : APP_ICONS.eye} size={18} />
+            </button>
           </div>
-          <label className="fp-show-pass">
-            <input type="checkbox" checked={showPass} onChange={e => setShowPass(e.target.checked)} />
-            Show passwords
-          </label>
 
           <button
             id="rp-submit-btn"

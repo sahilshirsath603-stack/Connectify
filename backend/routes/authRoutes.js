@@ -129,6 +129,7 @@ router.get('/clean-legacy-media', async (req, res) => {
 
 router.get('/users/room-archives', authMiddleware, controllers.getRoomArchives);
 router.put('/users/profile', authMiddleware, controllers.updateProfile);
+router.put('/users/aura', authMiddleware, controllers.setAura);
 router.post('/users/avatar', authMiddleware, upload.single('avatar'), controllers.uploadAvatar);
 router.delete('/users/delete-account', authMiddleware, controllers.deleteAccount);
 

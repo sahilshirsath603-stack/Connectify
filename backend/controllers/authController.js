@@ -410,7 +410,12 @@ const getMe = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    res.json(user);
+    const userObj = user.toObject({ getters: true });
+    if (userObj.aura && userObj.aura.expiresAt && new Date(userObj.aura.expiresAt) < new Date()) {
+      userObj.aura = { type: null, label: null, color: null, icon: null, expiresAt: null };
+      await User.findByIdAndUpdate(req.user._id, { $set: { aura: userObj.aura } });
+    }
+    res.json(userObj);
   } catch (err) {
     console.error('Get me error:', err);
     res.status(500).json({ message: 'Failed to fetch user data' });
@@ -429,10 +434,52 @@ const getUserById = async (req, res) => {
       userObj.lastSeen = null;
     }
     delete userObj.showOnlineStatus;
+    if (userObj.aura && userObj.aura.expiresAt && new Date(userObj.aura.expiresAt) < new Date()) {
+      userObj.aura = { type: null, label: null, color: null, icon: null, expiresAt: null };
+    }
     res.json(userObj);
   } catch (err) {
     console.error('Get user by id error:', err);
     res.status(500).json({ message: 'Failed to fetch user data' });
+  }
+};
+
+// SET AURA / VIBE
+const setAura = async (req, res) => {
+  try {
+    const { type, label, color, icon, expiresAt } = req.body;
+    const userId = req.user._id;
+
+    const finalExpiresAt = type
+      ? (expiresAt ? new Date(expiresAt) : new Date(Date.now() + 24 * 60 * 60 * 1000))
+      : null;
+
+    const auraData = {
+      type: type || null,
+      label: label || null,
+      color: color || null,
+      icon: icon || null,
+      expiresAt: finalExpiresAt
+    };
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: { aura: auraData } },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (global.io) {
+      global.io.emit('aura-updated', { userId, aura: updatedUser.aura });
+    }
+
+    res.json(updatedUser);
+  } catch (err) {
+    console.error('Set aura error:', err);
+    res.status(500).json({ message: 'Failed to update vibe' });
   }
 };
 
@@ -597,6 +644,7 @@ module.exports = {
   getPresence,
   getMe,
   getUserById,
+  setAura,
   updateProfile,
   uploadAvatar,
   getRoomArchives,

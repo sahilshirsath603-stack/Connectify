@@ -91,7 +91,7 @@ export default function Home({ token }) {
         });
 
         socket.on('aura-updated', ({ userId, aura }) => {
-            setUsers(prev => prev.map(u => u._id === userId ? { ...u, aura } : u));
+            setUsers(prev => prev.map(u => u._id?.toString() === userId?.toString() ? { ...u, aura } : u));
         });
 
         socket.on('active-micro-rooms-data', (rooms) => {

@@ -7,7 +7,7 @@ export default function Icon({
     className = "",
     ...props
 }) {
-    const LucideIcon = LucideIcons[name];
+    const LucideIcon = LucideIcons[name] || (typeof name === 'string' && LucideIcons[name.charAt(0).toUpperCase() + name.slice(1)]);
 
     if (!LucideIcon) return null;
 

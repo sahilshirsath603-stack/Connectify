@@ -22,6 +22,11 @@ export const updateProfile = async (profileData) => {
   return response.data;
 };
 
+export const updateAura = async (auraData) => {
+  const response = await api.put('/auth/users/aura', auraData);
+  return response.data;
+};
+
 export const getMe = async () => {
   const response = await api.get('/auth/users/me');
   return response.data;

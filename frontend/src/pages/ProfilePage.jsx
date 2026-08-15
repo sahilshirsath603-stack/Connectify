@@ -58,10 +58,10 @@ export default function ProfilePage({ token }) {
         if (!socket) return;
 
         const handleAuraUpdate = ({ userId, aura }) => {
-            if (currentUser && userId === currentUser._id) {
+            if (currentUser && userId?.toString() === currentUser._id?.toString()) {
                 setCurrentUser(prev => ({ ...prev, aura }));
             }
-            if (displayUser && userId === displayUser._id) {
+            if (displayUser && userId?.toString() === displayUser._id?.toString()) {
                 setDisplayUser(prev => ({ ...prev, aura }));
             }
         };
