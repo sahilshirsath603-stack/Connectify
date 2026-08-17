@@ -5,10 +5,25 @@
     top: 0;
     left: 0;
     right: 0;
-    bottom: 0; /* Remove 84px gap at bottom */
+    bottom: 0;
     background-color: var(--color-bg-app);
     font-family: 'Inter', sans-serif;
     overflow: hidden;
+}
+
+/* Mobile & Android (<= 768px) spacing for bottom nav bar */
+@media (max-width: 768px) {
+    .app-container {
+        bottom: 64px; /* Leave space above fixed mobile bottom nav bar */
+    }
+
+    .chat-footer {
+        padding: 8px 12px 10px 12px;
+    }
+
+    .smart-dock {
+        padding: 4px 10px;
+    }
 }
 
 
