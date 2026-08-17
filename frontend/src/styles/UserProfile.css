@@ -987,3 +987,158 @@
         font-size: 0.85rem;
     }
 }
+
+/* Custom 7-Letter Vibe Input & Swatches */
+.vibe-active-tag {
+    margin-left: auto;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 99px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.vibe-dot-badge {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+}
+
+.custom-vibe-form {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.custom-vibe-input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.custom-vibe-field-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.custom-vibe-input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 9px 44px 9px 14px;
+    color: #ffffff;
+    font-size: 0.88rem;
+    font-weight: 600;
+    outline: none;
+    transition: all 0.25s ease;
+}
+
+.custom-vibe-input:focus {
+    border-color: rgba(255, 122, 24, 0.5);
+    box-shadow: 0 0 12px rgba(255, 122, 24, 0.2);
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.vibe-char-limit {
+    position: absolute;
+    right: 12px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.4);
+    pointer-events: none;
+}
+
+.set-custom-vibe-btn {
+    border: none;
+    color: #ffffff;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 9px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.set-custom-vibe-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    box-shadow: none !important;
+}
+
+.set-custom-vibe-btn:not(:disabled):hover {
+    transform: translateY(-2px);
+    filter: brightness(1.15);
+}
+
+.vibe-theme-swatches-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+}
+
+.swatch-label-text {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.65);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.vibe-theme-badges {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.vibe-theme-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 99px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0.75;
+    user-select: none;
+}
+
+.vibe-theme-chip:hover {
+    opacity: 1;
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.vibe-theme-chip.active {
+    opacity: 1;
+    transform: scale(1.05);
+    border-color: #ffffff;
+}
+
+.theme-chip-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 6px #ffffff;
+}
+
+.theme-chip-name {
+    letter-spacing: 0.02em;
+}

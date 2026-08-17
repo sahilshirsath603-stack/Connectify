@@ -43,14 +43,25 @@ export const getUsers = async () => {
 };
 
 export const uploadAvatar = async (avatarFile) => {
-  const formData = new FormData();
-  formData.append('avatar', avatarFile, 'avatar.jpg');
-  const response = await api.post('/auth/users/avatar', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-  return response.data;
+  try {
+    const formData = new FormData();
+    formData.append('avatar', avatarFile, 'avatar.jpg');
+    const response = await api.post('/auth/users/avatar', formData);
+    return response.data;
+  } catch (err) {
+    console.warn('FormData avatar upload failed, using Base64 fallback:', err);
+    let base64 = avatarFile;
+    if (avatarFile instanceof Blob || avatarFile instanceof File) {
+      base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(avatarFile);
+      });
+    }
+    const response = await api.put('/auth/users/profile', { avatar: base64 });
+    return response.data;
+  }
 };
 
 export const deleteAccount = async (password) => {

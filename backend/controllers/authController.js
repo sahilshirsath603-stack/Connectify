@@ -525,12 +525,22 @@ const updateProfile = async (req, res) => {
 // UPLOAD AVATAR
 const uploadAvatar = async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
+    let avatarUrl = null;
+    if (req.file) {
+      avatarUrl = req.file.path || req.file.secure_url || req.file.url;
+    } else if (req.body && req.body.avatar) {
+      avatarUrl = req.body.avatar;
     }
 
-    const avatarUrl = req.file.path;
-    const updatedUser = await User.findByIdAndUpdate(req.user._id, { avatar: avatarUrl }, { new: true });
+    if (!avatarUrl) {
+      return res.status(400).json({ message: 'No file uploaded or avatar image provided' });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id, 
+      { avatar: avatarUrl }, 
+      { new: true }
+    ).select('name email username about avatar lastSeen connections aura showOnlineStatus');
 
     if (!updatedUser) {
       return res.status(404).json({ message: 'User not found' });

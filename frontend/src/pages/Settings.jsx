@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Palette, Shield, Info, AlertTriangle, Check, Sparkles, Moon, Sun } from "lucide-react";
+import { ArrowLeft, User, Shield, Info, AlertTriangle, Sparkles } from "lucide-react";
 import api, { deleteAccount, getMe } from "../services/api";
 import ConfirmModal from "../components/ui/ConfirmModal";
 import "./Settings.css";
@@ -33,9 +33,14 @@ function getAvatarGradient(idOrName) {
     return AVATAR_GRADIENTS[Math.abs(hash) % AVATAR_GRADIENTS.length];
 }
 
-export default function Settings({ theme, toggleTheme }) {
-    const THEME_CHHAYA = "chhaya";
+export default function Settings() {
     const navigate = useNavigate();
+
+    // Permanently enforce Dark Theme (Chhaya)
+    useEffect(() => {
+        localStorage.setItem('theme', 'chhaya');
+        document.documentElement.setAttribute('data-theme', 'chhaya');
+    }, []);
 
     const [user, setUser] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -225,52 +230,6 @@ export default function Settings({ theme, toggleTheme }) {
                         </div>
                     </div>
 
-                    {/* APPEARANCE SECTION */}
-                    <div className="settings-section-card">
-                        <div className="section-header">
-                            <div className="section-icon-badge appearance">
-                                <Palette size={18} />
-                            </div>
-                            <h3 className="section-title">Appearance & Theme</h3>
-                        </div>
-
-                        <div className="theme-cards-grid">
-                            <div 
-                                className={`theme-card ${theme === THEME_CHHAYA ? 'active' : ''}`}
-                                onClick={() => theme !== THEME_CHHAYA && toggleTheme()}
-                            >
-                                <div className="theme-preview-box dark">
-                                    <Moon size={24} />
-                                </div>
-                                <div className="theme-card-info">
-                                    <span className="theme-name">Chhaya (Dark)</span>
-                                    {theme === THEME_CHHAYA && (
-                                        <div className="theme-check-badge">
-                                            <Check size={12} />
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div 
-                                className={`theme-card ${theme !== THEME_CHHAYA ? 'active' : ''}`}
-                                onClick={() => theme === THEME_CHHAYA && toggleTheme()}
-                            >
-                                <div className="theme-preview-box light">
-                                    <Sun size={24} />
-                                </div>
-                                <div className="theme-card-info">
-                                    <span className="theme-name">Prakash (Light)</span>
-                                    {theme !== THEME_CHHAYA && (
-                                        <div className="theme-check-badge">
-                                            <Check size={12} />
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     {/* PRIVACY SECTION */}
                     <div className="settings-section-card">
                         <div className="section-header">
@@ -381,9 +340,9 @@ export default function Settings({ theme, toggleTheme }) {
                             }}
                         />
                         {passwordError && (
-                            <div style={{ color: 'var(--color-status-danger, #ef4444)', fontSize: '13px', marginTop: '8px' }}>
+                            <p style={{ color: '#ef4444', fontSize: '13px', marginTop: '6px', marginBottom: 0 }}>
                                 {passwordError}
-                            </div>
+                            </p>
                         )}
                     </div>
                 </ConfirmModal>

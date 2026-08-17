@@ -1,5 +1,5 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Link, Home, MessageCircle, Radio, Bell, User, Settings, LogOut } from 'lucide-react';
+import { Link, Home, MessageCircle, Radio, Bell, User, LogOut } from 'lucide-react';
 import './AppLayout.css';
 
 const NAV_ITEMS = [
@@ -8,7 +8,6 @@ const NAV_ITEMS = [
   { path: '/rooms',         icon: Radio,         label: 'Live Rooms' },
   { path: '/notifications', icon: Bell,          label: 'Activity' },
   { path: '/profile',       icon: User,          label: 'Profile' },
-  { path: '/settings',      icon: Settings,      label: 'Settings' },
 ];
 
 export default function WebAppLayout({ onLogout }) {

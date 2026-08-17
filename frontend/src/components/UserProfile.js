@@ -40,6 +40,15 @@ function getAvatarGradient(idOrName) {
     return AVATAR_GRADIENTS[Math.abs(hash) % AVATAR_GRADIENTS.length];
 }
 
+const VIBE_THEME_PALETTE = [
+    { id: 'sunset', name: 'Sunset', gradient: 'linear-gradient(135deg, #FF7A18 0%, #FF3D81 100%)', color: '#FF7A18', glow: 'rgba(255, 122, 24, 0.4)' },
+    { id: 'cosmic', name: 'Cosmic', gradient: 'linear-gradient(135deg, #7C5CFF 0%, #FF3D81 100%)', color: '#7C5CFF', glow: 'rgba(124, 92, 255, 0.4)' },
+    { id: 'cyber', name: 'Cyber', gradient: 'linear-gradient(135deg, #3B82F6 0%, #06B6D4 100%)', color: '#3B82F6', glow: 'rgba(59, 130, 246, 0.4)' },
+    { id: 'emerald', name: 'Emerald', gradient: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)', color: '#10B981', glow: 'rgba(16, 185, 129, 0.4)' },
+    { id: 'amethyst', name: 'Amethyst', gradient: 'linear-gradient(135deg, #8B5CF6 0%, #D946EF 100%)', color: '#8B5CF6', glow: 'rgba(139, 92, 246, 0.4)' },
+    { id: 'gold', name: 'Gold', gradient: 'linear-gradient(135deg, #F59E0B 0%, #FF7A18 100%)', color: '#F59E0B', glow: 'rgba(245, 158, 11, 0.4)' },
+];
+
 function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], showOverlay = true, isFullTab = false, onProfileUpdate, currentUser, onMediaClick, onSettingsClick, onSetAura }) {
   const navigate = useNavigate();
   
@@ -52,6 +61,11 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
   const [showAvatarViewer, setShowAvatarViewer] = useState(false);
   const [imgError, setImgError] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
+  
+  // Custom 7-Letter Vibe States
+  const [customVibeText, setCustomVibeText] = useState('');
+  const [selectedVibeColor, setSelectedVibeColor] = useState(VIBE_THEME_PALETTE[0].color);
+  
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -249,6 +263,20 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
     } catch (err) {
       console.error("Error persisting vibe via API:", err);
     }
+  };
+
+  const handleCustomVibeSubmit = (e) => {
+    if (e) e.preventDefault();
+    const trimmed = customVibeText.trim();
+    if (!trimmed) return;
+    const finalVibe = trimmed.slice(0, 7); // Strict 7 letter max
+    handleVibeClick({
+      type: 'custom',
+      label: finalVibe,
+      color: selectedVibeColor,
+      icon: '✨'
+    });
+    setCustomVibeText('');
   };
 
   const displayName = user.name || user.username || user.email?.split('@')[0] || "User";
@@ -468,15 +496,32 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
             <div className="modern-card modern-mood-card">
               <div className="modern-card-header">
                 <h3>
-                  <Sparkles size={16} style={{ color: '#FF7A18', display: 'inline', marginRight: '6px' }} />
+                  <Sparkles size={16} style={{ color: localAura?.color || '#FF7A18', display: 'inline', marginRight: '6px' }} />
                   Current Vibe
                 </h3>
               </div>
               
               {hasAura ? (
-                <div className="current-vibe-display" style={{ background: `linear-gradient(135deg, ${auraColor}22, ${auraColor}44)`, borderLeft: `3px solid ${auraColor}` }}>
-                  <span className="vibe-icon">{localAura?.icon}</span>
-                  <span className="vibe-text">{AURA_PRESETS.find(p => p.type === localAura?.type)?.label || localAura?.label || 'Vibing'}</span>
+                <div 
+                  className="current-vibe-display" 
+                  style={{ 
+                    background: `linear-gradient(135deg, ${localAura?.color || '#FF7A18'}20 0%, ${localAura?.color || '#FF7A18'}40 100%)`, 
+                    borderLeft: `4px solid ${localAura?.color || '#FF7A18'}`,
+                    boxShadow: `0 4px 20px ${localAura?.color || '#FF7A18'}25`
+                  }}
+                >
+                  <span className="vibe-icon" style={{ color: localAura?.color || '#FF7A18' }}>{localAura?.icon || '✨'}</span>
+                  <span className="vibe-text">{localAura?.label || 'Vibing'}</span>
+                  <span 
+                    className="vibe-active-tag" 
+                    style={{ 
+                      background: `${localAura?.color || '#FF7A18'}25`, 
+                      color: localAura?.color || '#FF7A18',
+                      border: `1px solid ${localAura?.color || '#FF7A18'}55`
+                    }}
+                  >
+                    Active
+                  </span>
                 </div>
               ) : (
                 <div className="current-vibe-empty">No vibe set right now</div>
@@ -484,18 +529,23 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
 
               {isSelf && (
                 <div className="vibe-picker">
-                  <p className="vibe-hint">Set your current vibe (lasts 24 hours — change anytime)</p>
+                  <p className="vibe-hint">Choose a vibe or write your own word (max 7 letters):</p>
+                  
+                  {/* Preset Vibe Badges */}
                   <div className="vibe-badges">
                     {AURA_PRESETS.map((preset) => (
                       <button
                         key={preset.type}
                         type="button"
                         onClick={() => handleVibeClick(preset)}
-                        className={`vibe-badge ${localAura?.type === preset.type ? 'active' : ''}`}
+                        className={`vibe-badge ${localAura?.type === preset.type && localAura?.label === preset.label ? 'active' : ''}`}
                         style={{
-                          '--vibe-color': preset.color
+                          background: localAura?.type === preset.type && localAura?.label === preset.label ? `${preset.color}33` : 'rgba(255, 255, 255, 0.05)',
+                          borderColor: preset.color,
+                          color: preset.color
                         }}
                       >
+                        <span className="vibe-dot-badge" style={{ background: preset.color }} />
                         {preset.label}
                       </button>
                     ))}
@@ -509,6 +559,57 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
                       </button>
                     )}
                   </div>
+
+                  {/* Custom 7-Letter Vibe Input */}
+                  <form className="custom-vibe-form" onSubmit={handleCustomVibeSubmit}>
+                    <div className="custom-vibe-input-row">
+                      <div className="custom-vibe-field-wrapper">
+                        <input
+                          type="text"
+                          maxLength={7}
+                          value={customVibeText}
+                          onChange={(e) => setCustomVibeText(e.target.value.slice(0, 7))}
+                          placeholder="Your vibe (7 max)"
+                          className="custom-vibe-input"
+                        />
+                        <span className="vibe-char-limit">{customVibeText.length}/7</span>
+                      </div>
+
+                      <button 
+                        type="submit" 
+                        className="set-custom-vibe-btn"
+                        disabled={!customVibeText.trim()}
+                        style={{ 
+                          background: selectedVibeColor,
+                          boxShadow: `0 4px 16px ${selectedVibeColor}55`
+                        }}
+                      >
+                        Set Vibe ✨
+                      </button>
+                    </div>
+
+                    {/* Vibe Theme Picker Palette */}
+                    <div className="vibe-theme-swatches-container">
+                      <span className="swatch-label-text">Select Theme:</span>
+                      <div className="vibe-theme-badges">
+                        {VIBE_THEME_PALETTE.map((themeItem) => (
+                          <button
+                            key={themeItem.id}
+                            type="button"
+                            className={`vibe-theme-chip ${selectedVibeColor === themeItem.color ? 'active' : ''}`}
+                            style={{
+                              background: themeItem.gradient,
+                              boxShadow: selectedVibeColor === themeItem.color ? `0 0 16px ${themeItem.glow}` : 'none'
+                            }}
+                            onClick={() => setSelectedVibeColor(themeItem.color)}
+                          >
+                            <span className="theme-chip-dot" />
+                            <span className="theme-chip-name">{themeItem.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </form>
                 </div>
               )}
             </div>

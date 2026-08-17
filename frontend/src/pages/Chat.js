@@ -1250,121 +1250,149 @@ function Chat({ token, onLogout, theme, toggleTheme }) {
       );
     }
 
-    // Show Groups list if activeTab is 'groups'
-    if (activeTab === 'groups') {
-      return (
-        <div className="sidebar-list">
-          <div className="sidebar-header">
-            <h3>Groups</h3>
-            <button onClick={() => setShowCreateGroupModal(true)} className="create-group-btn">
-              + Create Group
-            </button>
-          </div>
-          {groups.map((g) => (
-            <div
-              key={g._id}
-              onClick={() => {
-                navigate(`/messages/${g._id}`);
-              }}
-              className={`list-item ${selectedGroup?._id === g._id ? 'active' : ''}`}
-            >
-              <div className="item-avatar">
-                {g.avatar ? (
-                  <img
-                    src={g.avatar}
-                    alt="Avatar"
-                    className="avatar-img"
-                  />
-                ) : (
-                  g.name.charAt(0).toUpperCase()
-                )}
-              </div>
-              <div className="item-info">
-                <div className="item-name">{g.name}</div>
-                <div className="item-last-message">
-                  {lastMessages[g._id] ? (
-                    <>
-                      {lastMessages[g._id].preview}
-                      <span className="timestamp-span">
-                        {formatTime(lastMessages[g._id].timestamp)}
-                      </span>
-                    </>
-                  ) : 'No messages yet'}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      );
-    }
-
-    // Default: Show Users list (chats, or fallback)
     const usersWithAura = users.filter(u => u.aura && u.aura.type);
 
     return (
       <div className="sidebar-list">
-        {usersWithAura.length > 0 && (
-          <div className="aura-strip" style={{ display: 'flex', gap: '12px', padding: '12px 16px', overflowX: 'auto', borderBottom: '1px solid var(--border-color)', marginBottom: '8px' }}>
-            {usersWithAura.map(u => (
-              <div
-                key={`strip-${u._id}`}
-                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
-                onClick={() => setSelectedAuraUser(u)}
-              >
-                <div className={`item-avatar aura-active`} style={{ "--aura-color": u.aura.color, margin: '0 4px' }}>
-                  {u.avatar ? <img src={u.avatar} alt="Avatar" className="avatar-img" /> : u.email.charAt(0).toUpperCase()}
-                </div>
-                <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', maxWidth: '50px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {u.name || u.email.split('@')[0]}
-                </div>
+        {/* Modern Glassmorphic Messages Header */}
+        <div className="modern-sidebar-header">
+          <div className="sidebar-title-row">
+            <h2>Messages</h2>
+            {activeTab === 'groups' && (
+              <button onClick={() => setShowCreateGroupModal(true)} className="create-group-btn">
+                + Group
+              </button>
+            )}
+          </div>
+
+          {/* Direct vs Groups Tab Switcher Pills */}
+          <div className="sidebar-tab-pills">
+            <button
+              type="button"
+              className={`tab-pill ${activeTab !== 'groups' ? 'active' : ''}`}
+              onClick={() => setActiveTab('chats')}
+            >
+              Direct
+            </button>
+            <button
+              type="button"
+              className={`tab-pill ${activeTab === 'groups' ? 'active' : ''}`}
+              onClick={() => setActiveTab('groups')}
+            >
+              Groups ({groups.length})
+            </button>
+          </div>
+        </div>
+
+        {/* Dynamic Content List */}
+        {activeTab === 'groups' ? (
+          <div className="sidebar-items-scroll">
+            {groups.length === 0 ? (
+              <div className="sidebar-empty-state">No group conversations yet</div>
+            ) : (
+              groups.map((g) => {
+                const isSelected = selectedGroup?._id === g._id;
+                const groupLastMsg = lastMessages[g._id];
+                return (
+                  <div
+                    key={g._id}
+                    onClick={() => navigate(`/messages/${g._id}`)}
+                    className={`modern-conversation-item ${isSelected ? 'active' : ''}`}
+                  >
+                    <div className="item-avatar group-avatar-box">
+                      {g.avatar ? (
+                        <img src={g.avatar} alt="Avatar" className="avatar-img" />
+                      ) : (
+                        g.name.charAt(0).toUpperCase()
+                      )}
+                    </div>
+                    <div className="item-info">
+                      <div className="item-top-line">
+                        <span className="item-name">{g.name}</span>
+                        {groupLastMsg && (
+                          <span className="timestamp-span">
+                            {formatTime(groupLastMsg.timestamp)}
+                          </span>
+                        )}
+                      </div>
+                      <div className="item-last-message">
+                        {groupLastMsg ? groupLastMsg.preview : 'No messages yet'}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        ) : (
+          <div className="sidebar-items-scroll">
+            {/* Active Aura Strip */}
+            {usersWithAura.length > 0 && (
+              <div className="aura-strip">
+                {usersWithAura.map(u => (
+                  <div
+                    key={`strip-${u._id}`}
+                    className="aura-strip-item"
+                    onClick={() => setSelectedAuraUser(u)}
+                  >
+                    <div className="item-avatar aura-active" style={{ "--aura-color": u.aura.color }}>
+                      {u.avatar ? <img src={u.avatar} alt="Avatar" className="avatar-img" /> : (u.name || u.email).charAt(0).toUpperCase()}
+                    </div>
+                    <span className="aura-strip-name">
+                      {u.name ? u.name.split(' ')[0] : u.email.split('@')[0]}
+                    </span>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
+
+            {users.map((u) => {
+              const isSelected = selectedUser?._id === u._id;
+              const userLastMsg = lastMessages[getChatId(u._id)];
+              const displayName = u.name || u.username || u.email?.split('@')[0] || 'User';
+
+              return (
+                <div
+                  key={u._id}
+                  className={`modern-conversation-item ${isSelected ? 'active' : ''}`}
+                  onClick={() => {
+                    navigate(`/messages/${u._id}`);
+                    setMediaTab('media');
+                  }}
+                >
+                  <div
+                    className={`item-avatar ${u.aura ? 'aura-active' : ''}`}
+                    style={u.aura ? { "--aura-color": u.aura.color } : {}}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedAvatarUser(u);
+                      setShowAvatarViewer(true);
+                    }}
+                  >
+                    {u.avatar ? (
+                      <img src={u.avatar} alt="Avatar" className="avatar-img" />
+                    ) : (
+                      displayName.charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  <div className="item-info">
+                    <div className="item-top-line">
+                      <span className="item-name">{displayName}</span>
+                      {userLastMsg && (
+                        <span className="timestamp-span">
+                          {formatTime(userLastMsg.timestamp)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="item-last-message">
+                      {userLastMsg ? userLastMsg.preview : 'No messages yet'}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
-
-        {users.map((u) => (
-          <div
-            key={u._id}
-            className={`list-item ${selectedUser?._id === u._id ? 'active' : ''}`}
-            onClick={() => {
-              navigate(`/messages/${u._id}`);
-              setMediaTab('media');
-            }}
-          >
-            <div
-              className={`item-avatar ${u.aura ? 'aura-active' : ''}`}
-              style={u.aura ? { "--aura-color": u.aura.color } : {}}
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedAvatarUser(u);
-                setShowAvatarViewer(true);
-              }}
-            >
-              {u.avatar ? (
-                <img
-                  src={u.avatar}
-                  alt="Avatar"
-                  className="avatar-img"
-                />
-              ) : (
-                u.email.charAt(0).toUpperCase()
-              )}
-            </div>
-            <div className="item-info">
-              <div className="item-name">{u.name || u.email}</div>
-              <div className="item-last-message">
-                {lastMessages[getChatId(u._id)] ? (
-                  <>
-                    {lastMessages[getChatId(u._id)].preview}
-                    <span className="timestamp-span">
-                      {formatTime(lastMessages[getChatId(u._id)].timestamp)}
-                    </span>
-                  </>
-                ) : 'No messages yet'}
-              </div>
-            </div>
-          </div>
-        ))}
       </div>
     );
   };
@@ -2085,17 +2113,20 @@ function Chat({ token, onLogout, theme, toggleTheme }) {
             <div className="sidebar-content-top">
               {renderSidebarContent()}
             </div>
-            {location.pathname !== '/rooms' && (
-              <BottomCommandDock
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-                activeRoomsCount={activeMicroRooms.length}
-              />
-            )}
           </div>
 
           <div className="stage-screen chat-screen">
-            {routeId ? renderRightPanel() : null}
+            {routeId ? renderRightPanel() : (
+              <div className="empty-chat-state">
+                <div className="empty-chat-card">
+                  <div className="empty-chat-icon-bg">
+                    <Sparkles size={40} style={{ color: '#FF7A18' }} />
+                  </div>
+                  <h2 className="empty-chat-title">Your Messages</h2>
+                  <p className="empty-chat-subtitle">Select a contact or group from the list on the left to start messaging on Connectify.</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
