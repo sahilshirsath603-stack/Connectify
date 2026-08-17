@@ -121,9 +121,11 @@ export default function ProfilePage({ token }) {
     return (
         <div style={{
             width: "100%",
-            height: "100%",
+            height: "100vh",
+            display: "flex",
+            flexDirection: "column",
             background: "linear-gradient(180deg, #0b1220 0%, #0e1628 100%)",
-            overflowY: "auto"
+            overflow: "hidden"
         }}>
             <UserProfile
                 user={displayUser}

@@ -264,3 +264,198 @@
     color: #fff;
     cursor: pointer;
 }
+
+/* Micro Room Glass Modal Styles */
+.micro-room-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(11, 15, 26, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+    animation: fadeInOverlay 0.2s ease-out forwards;
+}
+
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.micro-room-modal {
+    width: 100%;
+    max-width: 440px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.03) 100%);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 24px;
+    padding: 24px 24px 28px 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    animation: modalPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes modalPopIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.mr-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.mr-header-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.mr-header-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(255, 122, 24, 0.2), rgba(255, 61, 129, 0.2));
+    border: 1px solid rgba(255, 122, 24, 0.4);
+    color: #FF7A18;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mr-close-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mr-close-btn:hover {
+    color: #ffffff;
+    background: rgba(239, 68, 68, 0.25);
+}
+
+.mr-field {
+    margin-bottom: 20px;
+}
+
+.mr-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.mr-input {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(0, 0, 0, 0.25);
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.25s ease;
+}
+
+.mr-input:focus {
+    border-color: rgba(255, 122, 24, 0.5);
+    box-shadow: 0 0 16px rgba(255, 122, 24, 0.2);
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.duration-chips-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.duration-chip {
+    padding: 10px 4px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    text-align: center;
+}
+
+.duration-chip:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.duration-chip.active {
+    background: linear-gradient(135deg, #FF7A18 0%, #FF3D81 100%);
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow: 0 4px 14px rgba(255, 61, 129, 0.35);
+    transform: translateY(-1px);
+}
+
+.mr-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.mr-cancel-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.75);
+    padding: 10px 20px;
+    border-radius: 99px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mr-cancel-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+}
+
+.mr-submit-btn {
+    background: linear-gradient(135deg, #FF7A18 0%, #FF3D81 100%);
+    border: none;
+    color: #ffffff;
+    padding: 10px 22px;
+    border-radius: 99px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(255, 61, 129, 0.35);
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mr-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(255, 61, 129, 0.5);
+}

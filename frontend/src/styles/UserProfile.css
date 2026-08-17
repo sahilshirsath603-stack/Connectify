@@ -1,4 +1,4 @@
-/* MODERN_PROFILE_UI_V1 */
+/* MODERN_PROFILE_UI_V2 */
 /* Glassmorphism User Profile Panel */
 
 .profile-overlay {
@@ -7,36 +7,42 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(11, 15, 26, 0.65);
     z-index: 999;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
 .modern-profile-panel {
     position: fixed;
     top: 0;
     right: 0;
-    width: 380px;
+    width: 480px;
+    max-width: 100vw;
     height: 100vh;
-    background: linear-gradient(180deg, rgba(14, 22, 40, 0.95) 0%, rgba(11, 18, 32, 0.98) 100%);
-    backdrop-filter: blur(20px);
-    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(11, 18, 32, 0.98) 100%);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow: -15px 0 40px rgba(0, 0, 0, 0.6);
     z-index: 1000;
     display: flex;
     flex-direction: column;
     transform: translateX(0);
     animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
-    color: #e2e8f0;
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+    color: #ffffff;
     font-family: 'Inter', system-ui, sans-serif;
 }
 
 .modern-profile-panel.full-tab {
     position: relative;
     width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
     height: 100%;
     min-height: 100vh;
-    background: linear-gradient(180deg, #0b1220 0%, #0e1628 100%);
+    background: transparent;
     box-shadow: none;
     border-left: none;
     animation: none;
@@ -47,54 +53,69 @@
     to { transform: translateX(0); }
 }
 
-/* Header */
+/* Header Bar */
 .modern-profile-header-bar {
-    padding: 20px 24px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 18px 28px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     justify-content: space-between;
     align-items: center;
     background: transparent;
+    flex-shrink: 0;
 }
 
 .modern-profile-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #f8fafc;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    letter-spacing: -0.01em;
+}
+
+.title-icon-badge {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(255, 122, 24, 0.2), rgba(255, 61, 129, 0.2));
+    border: 1px solid rgba(255, 122, 24, 0.4);
+    color: #FF7A18;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .modern-icon-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    width: 36px;
-    height: 36px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
-    color: #cbd5e1;
-    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.75);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .modern-icon-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    transform: scale(1.06);
 }
 
 /* Content Scroll Area */
 .modern-profile-content {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
-    padding: 24px;
+    overflow-x: hidden;
+    padding: 24px 32px 32px 32px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
 }
 
 .modern-profile-content::-webkit-scrollbar {
@@ -102,7 +123,7 @@
 }
 
 .modern-profile-content::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.12);
     border-radius: 10px;
 }
 
@@ -112,24 +133,24 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
+    position: relative;
 }
 
 .modern-hero-avatar {
-    width: 110px;
-    height: 110px;
+    width: 114px;
+    height: 114px;
     border-radius: 50%;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
     position: relative;
-    background: #1e293b;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .modern-hero-avatar.pointable:hover {
-    transform: scale(1.05) translateY(-2px);
+    transform: scale(1.04) translateY(-2px);
 }
 
 .modern-avatar-img {
@@ -140,23 +161,48 @@
 }
 
 .modern-avatar-initial {
-    font-size: 2.5rem;
+    font-size: 2.6rem;
     font-weight: 700;
-    color: #fff;
+    color: #ffffff;
+}
+
+/* Camera Overlay Badge for Avatar Edit */
+.avatar-camera-overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    gap: 4px;
+}
+
+.modern-hero-avatar:hover .avatar-camera-overlay {
+    opacity: 1;
 }
 
 .modern-status-dot {
     position: absolute;
     bottom: 4px;
     right: 4px;
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    border: 3px solid #0e1628;
+    border: 3px solid #0B0F1A;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .modern-status-dot.online {
     background: #10b981;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
 }
 
 .modern-status-dot.offline {
@@ -173,99 +219,114 @@
 
 .modern-hero-name {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     font-weight: 700;
-    color: #f8fafc;
+    color: #ffffff;
     letter-spacing: -0.02em;
 }
 
 .modern-edit-icon {
-    background: transparent;
-    border: none;
-    color: #64748b;
-    font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.7);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    padding: 4px;
-    transition: color 0.2s;
-    opacity: 0.7;
+    transition: all 0.2s ease;
 }
 
 .modern-edit-icon:hover {
-    color: #f8fafc;
-    opacity: 1;
+    color: #ffffff;
+    background: rgba(255, 122, 24, 0.25);
+    border-color: rgba(255, 122, 24, 0.4);
 }
 
 .modern-hero-id {
-    font-size: 0.9rem;
-    color: #94a3b8;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #FF7A18;
+    background: rgba(255, 122, 24, 0.15);
+    border: 1px solid rgba(255, 122, 24, 0.3);
+    padding: 3px 12px;
+    border-radius: 99px;
+    display: inline-block;
     margin-bottom: 8px;
 }
 
 .modern-hero-status {
-    display: inline-block;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    color: #cbd5e1;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 4px 14px;
+    border-radius: 99px;
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 20px;
+    font-weight: 500;
 }
 
 .modern-hero-actions {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     width: 100%;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
 .modern-btn {
-    padding: 10px 20px;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 0.95rem;
+    padding: 10px 22px;
+    border-radius: 99px;
+    font-weight: 700;
+    font-size: 0.9rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     border: none;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 8px;
 }
 
 .modern-btn.primary {
-    background: #6b7aff;
+    background: linear-gradient(135deg, #FF7A18 0%, #FF3D81 100%);
     color: white;
-    box-shadow: 0 4px 15px rgba(107, 122, 255, 0.3);
+    box-shadow: 0 6px 20px rgba(255, 61, 129, 0.35);
 }
 
 .modern-btn.primary:hover:not(:disabled) {
-    background: #5a68e0;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(107, 122, 255, 0.4);
+    box-shadow: 0 10px 25px rgba(255, 61, 129, 0.5);
 }
 
 .modern-btn.secondary {
-    background: rgba(255, 255, 255, 0.05);
-    color: #f8fafc;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .modern-btn.secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.16);
     transform: translateY(-2px);
 }
 
 .modern-btn.danger {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.2);
+    background: rgba(239, 68, 68, 0.15);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .modern-btn.danger:hover {
-    background: rgba(239, 68, 68, 0.2);
-    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.3);
+    color: #ffffff;
     transform: translateY(-2px);
 }
+
 
 .modern-btn:disabled {
     opacity: 0.6;
@@ -853,4 +914,57 @@
 .modern-search-input:focus {
     border-color: #6b7aff;
     background: rgba(255, 255, 255, 0.08);
+}
+
+/* Responsive Overrides for Android Mobile & Windows Widescreen */
+@media (max-width: 768px) {
+    .modern-profile-panel {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        border-left: none;
+        border-radius: 0;
+    }
+
+    .modern-profile-panel.full-tab {
+        padding: 16px 12px 40px 12px;
+        max-width: 100%;
+    }
+
+    .modern-profile-header-bar {
+        padding: 16px 20px;
+    }
+
+    .modern-profile-content {
+        padding: 20px 16px;
+        gap: 18px;
+    }
+
+    .modern-hero-avatar {
+        width: 100px;
+        height: 100px;
+    }
+
+    .modern-avatar-initial {
+        font-size: 2.2rem;
+    }
+
+    .modern-hero-name {
+        font-size: 1.4rem;
+    }
+
+    .modern-stats-grid {
+        gap: 10px;
+    }
+
+    .modern-stat-card {
+        padding: 14px 8px;
+    }
+
+    .stat-value {
+        font-size: 1.15rem;
+    }
+
+    .stat-label {
+        font-size: 0.7rem;
+    }
 }

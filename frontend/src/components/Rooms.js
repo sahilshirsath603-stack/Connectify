@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { Radio, X, Sparkles, Users, Clock, Flame, Plus, ArrowRight, History } from 'lucide-react';
 import { getRoomArchives } from '../services/api';
-import Icon from './ui/Icon';
-import { APP_ICONS } from '../constants/icons';
 import { useSocket } from '../context/SocketContext';
-import { useNavigate } from 'react-router-dom';
 import './Rooms.css';
 
 function Rooms({ onJoinRoom, onCreateRoom }) {
     const socket = useSocket();
-    const navigate = useNavigate();
     const [activeMicroRooms, setActiveMicroRooms] = useState([]);
     const [archivedRooms, setArchivedRooms] = useState([]);
 
@@ -59,8 +56,17 @@ function Rooms({ onJoinRoom, onCreateRoom }) {
 
     return (
         <div className="rooms-page">
-            <div className="rooms-header">
-                <h2>Micro Rooms</h2>
+            <div className="rooms-header-section">
+                <div className="rooms-header-left">
+                    <div className="rooms-header-icon">
+                        <Radio size={22} />
+                    </div>
+                    <div>
+                        <h2>Micro Rooms</h2>
+                        <p className="rooms-subtitle">Ephemeral audio & chat spaces that auto-expire</p>
+                    </div>
+                </div>
+
                 <button className="create-room-btn" onClick={() => {
                     if (onCreateRoom) {
                         onCreateRoom();
@@ -68,15 +74,21 @@ function Rooms({ onJoinRoom, onCreateRoom }) {
                         setShowMicroRoomModal(true);
                     }
                 }}>
-                    <Icon name={APP_ICONS.attach} size={14} /> Create
+                    <Plus size={16} /> Create Room
                 </button>
             </div>
 
             <div className="rooms-list-scroll">
                 {activeMicroRooms.length > 0 ? (
                     <div className="rooms-section">
-                        <h4 className="rooms-section-title">Live & Trending</h4>
-                        <div className="rooms-list">
+                        <div className="rooms-section-header">
+                            <h4 className="rooms-section-title">
+                                <Flame size={16} className="title-fire-icon" /> Live & Trending Spaces
+                            </h4>
+                            <span className="live-count-badge">{activeMicroRooms.length} Active</span>
+                        </div>
+
+                        <div className="rooms-grid">
                             {activeMicroRooms.map(r => {
                                 const score = (r.stats?.messageCount * 2 || 0) + ((r.participants?.length || 1) * 3) + (r.stats?.reactionCount || 0);
                                 const isTrending = score >= 15;
@@ -89,20 +101,53 @@ function Rooms({ onJoinRoom, onCreateRoom }) {
                                     })()
                                 ) : '';
 
+                                const participantCount = r.participants?.length || 1;
+
                                 return (
-                                    <div key={r._id} className={`room-card ${isTrending ? 'trending' : ''}`} onClick={() => {
-                                        if (onJoinRoom) {
-                                            onJoinRoom(r._id);
-                                        } else {
-                                            socket?.emit('join-micro-room', { roomId: r._id });
-                                        }
-                                    }}>
-                                        <div className="room-title">
-                                            {isTrending ? '🔥' : <Icon name={APP_ICONS.rooms} size={16} />}
-                                            {r.title}
+                                    <div 
+                                        key={r._id} 
+                                        className={`room-card ${isTrending ? 'trending' : ''}`} 
+                                        onClick={() => {
+                                            if (onJoinRoom) {
+                                                onJoinRoom(r._id);
+                                            } else {
+                                                socket?.emit('join-micro-room', { roomId: r._id });
+                                            }
+                                        }}
+                                    >
+                                        <div className="room-card-top">
+                                            <div className="room-badge-group">
+                                                <span className="live-pulse-badge">
+                                                    <span className="pulse-dot"></span> LIVE
+                                                </span>
+                                                {isTrending && (
+                                                    <span className="trending-badge">
+                                                        <Flame size={12} /> Hot
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            {diffStr && (
+                                                <span className="time-left-chip">
+                                                    <Clock size={12} /> {diffStr} left
+                                                </span>
+                                            )}
                                         </div>
-                                        <div className="room-meta">
-                                            {r.participants?.length || 0} participants • {diffStr} left
+
+                                        <div className="room-card-body">
+                                            <h3 className="room-card-title">{r.title}</h3>
+                                        </div>
+
+                                        <div className="room-card-footer">
+                                            <div className="room-meta-pill">
+                                                <Users size={13} />
+                                                <span>{participantCount} {participantCount === 1 ? 'user' : 'users'} active</span>
+                                            </div>
+
+                                            <div className="join-room-action">
+                                                <span>Join</span>
+                                                <ArrowRight size={14} />
+                                            </div>
                                         </div>
                                     </div>
                                 );
@@ -111,23 +156,32 @@ function Rooms({ onJoinRoom, onCreateRoom }) {
                     </div>
                 ) : (
                     <div className="no-rooms-state">
-                        <Icon name={APP_ICONS.rooms} size={48} color="var(--border-color)" />
-                        <p>No active rooms right now.</p>
+                        <div className="empty-radio-icon">
+                            <Radio size={32} />
+                        </div>
+                        <h3>No active micro rooms right now</h3>
+                        <p>Create a temporary audio/chat room for your community or friends to hang out.</p>
+                        <button className="empty-create-btn" onClick={() => setShowMicroRoomModal(true)}>
+                            <Plus size={16} /> Create Micro Room
+                        </button>
                     </div>
                 )}
 
                 {archivedRooms.length > 0 && (
-                    <div className="rooms-archive">
-                        <h4 className="rooms-section-title">Your Archives</h4>
-                        <div className="rooms-list">
+                    <div className="rooms-archive-section">
+                        <h4 className="rooms-section-title">
+                            <History size={16} /> Your Archives
+                        </h4>
+                        <div className="rooms-grid">
                             {archivedRooms.map((r, idx) => (
                                 <div key={`archive-${idx}`} className="room-card archive-card">
-                                    <div className="room-title">
-                                        <Icon name={APP_ICONS.rooms} size={16} color="var(--color-text-secondary)" />
-                                        {r.title}
+                                    <div className="room-card-top">
+                                        <span className="archive-chip">Ended</span>
                                     </div>
-                                    <div className="room-meta">
-                                        {r.durationHours || 1}h • Peak: {r.peakParticipants || 0} users
+                                    <h3 className="room-card-title">{r.title}</h3>
+                                    <div className="room-meta-pill">
+                                        <Users size={13} />
+                                        <span>Peak: {r.peakParticipants || 0} users • {r.durationHours || 1}h</span>
                                     </div>
                                 </div>
                             ))}
@@ -139,40 +193,62 @@ function Rooms({ onJoinRoom, onCreateRoom }) {
             {/* MICRO ROOM CREATE MODAL */}
             {
                 showMicroRoomModal && (
-                    <div className="tg-float-overlay" onClick={(e) => e.target === e.currentTarget && setShowMicroRoomModal(false)}>
-                        <div className="tg-float-modal" style={{ height: 'auto', padding: '24px' }}>
-                            <h3 style={{ marginBottom: '20px', fontSize: '18px', fontWeight: 600 }}>Create Micro Room</h3>
-                            <div style={{ marginBottom: '16px' }}>
-                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Room Title</label>
+                    <div className="micro-room-overlay" onClick={(e) => e.target === e.currentTarget && setShowMicroRoomModal(false)}>
+                        <div className="micro-room-modal">
+                            <div className="mr-header">
+                                <div className="mr-header-title">
+                                    <div className="mr-header-icon">
+                                        <Radio size={18} />
+                                    </div>
+                                    <span>Create Micro Room</span>
+                                </div>
+                                <button className="mr-close-btn" onClick={() => setShowMicroRoomModal(false)} aria-label="Close">
+                                    <X size={16} />
+                                </button>
+                            </div>
+
+                            <div className="mr-field">
+                                <label className="mr-label">Room Title</label>
                                 <input
                                     type="text"
+                                    className="mr-input"
                                     placeholder="E.g. Weekend Plans"
                                     value={microRoomForm.title}
                                     onChange={(e) => setMicroRoomForm({ ...microRoomForm, title: e.target.value })}
-                                    style={{ width: '100%', padding: '12px 14px', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--color-bg-base)', color: 'var(--color-text-primary)' }}
+                                    autoFocus
                                 />
                             </div>
-                            <div style={{ marginBottom: '24px' }}>
-                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Duration</label>
-                                <select
-                                    value={microRoomForm.durationHours}
-                                    onChange={(e) => setMicroRoomForm({ ...microRoomForm, durationHours: Number(e.target.value) })}
-                                    style={{ width: '100%', cursor: 'pointer', padding: '12px 14px', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--color-bg-base)', color: 'var(--color-text-primary)' }}
-                                >
-                                    <option value={1}>1 Hour</option>
-                                    <option value={3}>3 Hours</option>
-                                    <option value={6}>6 Hours</option>
-                                    <option value={24}>24 Hours</option>
-                                </select>
+
+                            <div className="mr-field">
+                                <label className="mr-label">Duration</label>
+                                <div className="duration-chips-grid">
+                                    {[
+                                        { hours: 1, label: '1 Hour' },
+                                        { hours: 3, label: '3 Hours' },
+                                        { hours: 6, label: '6 Hours' },
+                                        { hours: 24, label: '24 Hours' }
+                                    ].map(option => (
+                                        <button
+                                            key={option.hours}
+                                            type="button"
+                                            className={`duration-chip ${microRoomForm.durationHours === option.hours ? 'active' : ''}`}
+                                            onClick={() => setMicroRoomForm({ ...microRoomForm, durationHours: option.hours })}
+                                        >
+                                            {option.label}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+
+                            <div className="mr-footer">
                                 <button
+                                    className="mr-cancel-btn"
                                     onClick={() => setShowMicroRoomModal(false)}
-                                    style={{ background: 'transparent', color: 'var(--color-text-secondary)', border: 'none', cursor: 'pointer', padding: '10px 20px', fontWeight: 500 }}
                                 >
                                     Cancel
                                 </button>
                                 <button
+                                    className="mr-submit-btn"
                                     onClick={() => {
                                         if (!microRoomForm.title.trim()) return;
                                         socket?.emit('create-micro-room', {
@@ -183,10 +259,8 @@ function Rooms({ onJoinRoom, onCreateRoom }) {
                                         setShowMicroRoomModal(false);
                                         setMicroRoomForm({ title: '', durationHours: 1 });
                                     }}
-                                    className="action-btn"
-                                    style={{ padding: '10px 24px', borderRadius: '10px', background: 'var(--color-brand-primary)', color: '#fff', fontWeight: 500 }}
                                 >
-                                    Create Room
+                                    <Sparkles size={16} /> Create Room
                                 </button>
                             </div>
                         </div>

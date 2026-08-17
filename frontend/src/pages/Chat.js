@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { Radio, X, Sparkles } from 'lucide-react';
 import './Chat.css';
 import './Chat_Modals.css';
 import axios from 'axios';
@@ -1635,7 +1636,7 @@ function Chat({ token, onLogout, theme, toggleTheme }) {
                   </div>
                   {showEmojiPicker && (
                     <div className="emoji-picker-container">
-                      <EmojiPicker onEmojiClick={onEmojiClick} />
+                      <EmojiPicker theme="dark" onEmojiClick={onEmojiClick} />
                     </div>
                   )}
                 </div>
@@ -1870,7 +1871,7 @@ function Chat({ token, onLogout, theme, toggleTheme }) {
                   </div>
                   {showEmojiPicker && (
                     <div className="emoji-picker-container">
-                      <EmojiPicker onEmojiClick={onEmojiClick} />
+                      <EmojiPicker theme="dark" onEmojiClick={onEmojiClick} />
                     </div>
                   )}
                 </div>
@@ -2062,7 +2063,7 @@ function Chat({ token, onLogout, theme, toggleTheme }) {
                   </div>
                   {showEmojiPicker && (
                     <div className="emoji-picker-container">
-                      <EmojiPicker onEmojiClick={(emojiData) => setMicroRoomText(prev => prev + emojiData.emoji)} />
+                      <EmojiPicker theme="dark" onEmojiClick={(emojiData) => setMicroRoomText(prev => prev + emojiData.emoji)} />
                     </div>
                   )}
                 </div>
@@ -2318,40 +2319,62 @@ function Chat({ token, onLogout, theme, toggleTheme }) {
       {/* MICRO ROOM CREATE MODAL */}
       {
         showMicroRoomModal && (
-          <div className="tg-float-overlay" onClick={(e) => e.target === e.currentTarget && setShowMicroRoomModal(false)}>
-            <div className="tg-float-modal" style={{ height: 'auto', padding: '24px' }}>
-              <h3 style={{ marginBottom: '20px', fontSize: '18px', fontWeight: 600 }}>Create Micro Room</h3>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Room Title</label>
+          <div className="micro-room-overlay" onClick={(e) => e.target === e.currentTarget && setShowMicroRoomModal(false)}>
+            <div className="micro-room-modal">
+              <div className="mr-header">
+                <div className="mr-header-title">
+                  <div className="mr-header-icon">
+                    <Radio size={18} />
+                  </div>
+                  <span>Create Micro Room</span>
+                </div>
+                <button className="mr-close-btn" onClick={() => setShowMicroRoomModal(false)} aria-label="Close">
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div className="mr-field">
+                <label className="mr-label">Room Title</label>
                 <input
                   type="text"
+                  className="mr-input"
                   placeholder="E.g. Weekend Plans"
                   value={microRoomForm.title}
                   onChange={(e) => setMicroRoomForm({ ...microRoomForm, title: e.target.value })}
-                  style={{ width: '100%', padding: '12px 14px', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--color-bg-base)', color: 'var(--color-text-primary)' }}
+                  autoFocus
                 />
               </div>
-              <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Duration</label>
-                <select
-                  value={microRoomForm.durationHours}
-                  onChange={(e) => setMicroRoomForm({ ...microRoomForm, durationHours: Number(e.target.value) })}
-                  style={{ width: '100%', cursor: 'pointer', padding: '12px 14px', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--color-bg-base)', color: 'var(--color-text-primary)' }}
-                >
-                  <option value={1}>1 Hour</option>
-                  <option value={3}>3 Hours</option>
-                  <option value={6}>6 Hours</option>
-                  <option value={24}>24 Hours</option>
-                </select>
+
+              <div className="mr-field">
+                <label className="mr-label">Duration</label>
+                <div className="duration-chips-grid">
+                  {[
+                    { hours: 1, label: '1 Hour' },
+                    { hours: 3, label: '3 Hours' },
+                    { hours: 6, label: '6 Hours' },
+                    { hours: 24, label: '24 Hours' }
+                  ].map(option => (
+                    <button
+                      key={option.hours}
+                      type="button"
+                      className={`duration-chip ${microRoomForm.durationHours === option.hours ? 'active' : ''}`}
+                      onClick={() => setMicroRoomForm({ ...microRoomForm, durationHours: option.hours })}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+
+              <div className="mr-footer">
                 <button
+                  className="mr-cancel-btn"
                   onClick={() => setShowMicroRoomModal(false)}
-                  style={{ background: 'transparent', color: 'var(--color-text-secondary)', border: 'none', cursor: 'pointer', padding: '10px 20px', fontWeight: 500 }}
                 >
                   Cancel
                 </button>
                 <button
+                  className="mr-submit-btn"
                   onClick={() => {
                     if (!microRoomForm.title.trim()) return;
                     socketRef.current?.emit('create-micro-room', {
@@ -2362,10 +2385,8 @@ function Chat({ token, onLogout, theme, toggleTheme }) {
                     setShowMicroRoomModal(false);
                     setMicroRoomForm({ title: '', durationHours: 1 });
                   }}
-                  className="action-btn"
-                  style={{ padding: '10px 24px', borderRadius: '10px', background: 'var(--color-brand-primary)', color: '#fff', fontWeight: 500 }}
                 >
-                  Create Room
+                  <Sparkles size={16} /> Create Room
                 </button>
               </div>
             </div>

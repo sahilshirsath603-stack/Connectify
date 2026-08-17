@@ -31,12 +31,6 @@ exports.sendRequest = async (req, res) => {
 
     await ConnectionRequest.create({ sender, receiver });
 
-    await Notification.create({
-        user: receiver,
-        type: "connection_request",
-        from: sender
-    });
-
     // Fire socket event so receiver gets it instantly
     if (global.io) {
         // Find if receiver is online, if so emit to their socket room
@@ -69,15 +63,7 @@ exports.acceptRequest = async (req, res) => {
         user: request.sender,
         type: "connection_accepted",
         from: request.receiver,
-        message: `${receiverData.name || receiverData.email.split('@')[0]} accepted your connection request. You can now message them.`
-    });
-
-    // Create a notification for the receiver that they are now connected
-    await Notification.create({
-        user: request.receiver,
-        type: "connection_accepted",
-        from: request.sender,
-        message: `You are now connected with ${senderData.name || senderData.email.split('@')[0]}.`
+        message: `${receiverData.name || receiverData.username || receiverData.email.split('@')[0]} accepted your connection request. You can now message them.`
     });
 
     await User.findByIdAndUpdate(request.sender, {

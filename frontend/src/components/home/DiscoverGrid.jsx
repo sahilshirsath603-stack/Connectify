@@ -1,8 +1,17 @@
 import UserCard from "./UserCard";
+import { UserX } from "lucide-react";
 
 export default function DiscoverGrid({ users, currentUser, sentRequests, onlineUsers, activeRooms }) {
     if (!users || !users.length) {
-        return <p style={{ textAlign: "center", color: "#888", padding: "40px" }}>No users found.</p>;
+        return (
+            <div className="empty-discover-state">
+                <div className="empty-icon-wrapper">
+                    <UserX size={32} />
+                </div>
+                <h3>No members found</h3>
+                <p>Try searching for a different username or check back later.</p>
+            </div>
+        );
     }
 
     return (
@@ -25,3 +34,4 @@ export default function DiscoverGrid({ users, currentUser, sentRequests, onlineU
         </div>
     );
 }
+

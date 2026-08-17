@@ -2,14 +2,13 @@
 
 .home-wrapper {
     min-height: 100vh;
-    /* Uses global radial gradient from body instead of hardcoded background here */
     display: flex;
     justify-content: center;
 }
 
 .home-container {
-    padding: 24px;
-    max-width: 800px; /* Reduced max-width for more app-like feel on desktop */
+    padding: 24px 20px;
+    max-width: 880px;
     margin: 0 auto;
     width: 100%;
 }
@@ -17,16 +16,54 @@
 /* GRID */
 
 .discover-grid {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
     gap: 24px;
 }
 
-/* Tablet/Desktop expansion for cards if needed */
-@media (min-width: 768px) {
+@media (min-width: 640px) {
     .discover-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
         gap: 24px;
     }
 }
+
+/* Empty State */
+.empty-discover-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    margin-top: 10px;
+}
+
+.empty-icon-wrapper {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 16px;
+}
+
+.empty-discover-state h3 {
+    color: #ffffff;
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+}
+
+.empty-discover-state p {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+    margin: 0;
+    max-width: 320px;
+}

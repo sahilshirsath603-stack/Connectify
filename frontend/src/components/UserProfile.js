@@ -1,4 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { 
+    User, Settings, MessageSquare, UserPlus, UserCheck, UserMinus, 
+    Share2, Edit3, Camera, Sparkles, Radio, Activity, LogOut, X, 
+    Check, Clock 
+} from 'lucide-react';
 import { updateProfile, uploadAvatar, getRoomArchives, updateAura } from '../services/api';
 import '../styles/UserProfile.css';
 import AvatarCropModal from './AvatarCropModal';
@@ -7,17 +12,36 @@ import { AURA_PRESETS } from '../constants/auraConfig';
 import { useNavigate } from 'react-router-dom';
 import ConfirmModal from './ui/ConfirmModal';
 
+// Helper to generate initials from name or email
+function getInitials(name) {
+    if (!name) return "?";
+    const parts = name.trim().split(" ").filter(Boolean);
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+// Preset vibrant gradients for fallback avatar
+const AVATAR_GRADIENTS = [
+    "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
+    "linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)",
+    "linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)",
+    "linear-gradient(135deg, #f97316 0%, #e11d48 100%)",
+    "linear-gradient(135deg, #10b981 0%, #06b6d4 100%)",
+    "linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%)",
+];
+
+function getAvatarGradient(idOrName) {
+    if (!idOrName) return AVATAR_GRADIENTS[0];
+    let hash = 0;
+    const str = String(idOrName);
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return AVATAR_GRADIENTS[Math.abs(hash) % AVATAR_GRADIENTS.length];
+}
+
 function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], showOverlay = true, isFullTab = false, onProfileUpdate, currentUser, onMediaClick, onSettingsClick, onSetAura }) {
   const navigate = useNavigate();
-
-  const handleMediaClick = (media) => {
-    const userMediaMessages = mediaMessages.filter(m => (m.type === 'image' || m.type === 'video') && (m.senderId === user._id || m.receiverId === user._id));
-    const startIndex = userMediaMessages.findIndex(m => m._id === media._id);
-
-    if (onMediaClick) {
-      onMediaClick({ mediaMessages: userMediaMessages, startIndex });
-    }
-  };
   
   const [editingName, setEditingName] = useState(false);
   const [editingAbout, setEditingAbout] = useState(false);
@@ -27,6 +51,7 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
   const [imageSrc, setImageSrc] = useState(null);
   const [showAvatarViewer, setShowAvatarViewer] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -157,7 +182,11 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
   };
 
   const handleAvatarClick = () => {
-    setShowAvatarViewer(true);
+    if (isSelf && fileInputRef.current) {
+      fileInputRef.current.click();
+    } else {
+      setShowAvatarViewer(true);
+    }
   };
 
   const handleAvatarChange = (event) => {
@@ -177,7 +206,7 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
       const updatedUser = await uploadAvatar(croppedBlob);
       setShowCropModal(false);
       setImageSrc(null);
-      fileInputRef.current.value = '';
+      if (fileInputRef.current) fileInputRef.current.value = '';
       if (onProfileUpdate) onProfileUpdate(updatedUser);
     } catch (error) {
       console.error('Failed to upload avatar:', error);
@@ -188,7 +217,14 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
   const handleCropCancel = () => {
     setShowCropModal(false);
     setImageSrc(null);
-    fileInputRef.current.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleShareProfile = () => {
+    const profileUrl = `${window.location.origin}/profile/${user._id}`;
+    navigator.clipboard.writeText(profileUrl);
+    setShareCopied(true);
+    setTimeout(() => setShareCopied(false), 2500);
   };
 
   if (!user) return null;
@@ -214,11 +250,15 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
       console.error("Error persisting vibe via API:", err);
     }
   };
-  
+
+  const displayName = user.name || user.username || user.email?.split('@')[0] || "User";
+  const initials = getInitials(displayName);
+  const fallbackBg = getAvatarGradient(user._id || displayName);
+
   // Mock activity data
   const recentActivities = [
-    { id: 1, type: 'connection', text: `Became connected with ${currentUser?.name || 'someone'}`, time: '2h ago' },
-    { id: 2, type: 'room', text: 'Joined a live room', time: '1d ago' },
+    { id: 1, type: 'connection', text: `Connected on Connectify`, time: 'Recently' },
+    { id: 2, type: 'room', text: 'Joined a live micro room', time: 'Active' },
   ];
 
   return (
@@ -226,13 +266,14 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
       {showConfirm && (
           <ConfirmModal 
               title="Disconnect User"
-              message={`Are you sure you want to disconnect from ${user.name || user.username || user.email}?`}
+              message={`Are you sure you want to disconnect from ${displayName}?`}
               confirmText="Disconnect"
               cancelText="Cancel"
               onConfirm={confirmDisconnectAction}
               onCancel={() => setShowConfirm(false)}
           />
       )}
+
       {/* Overlay */}
       {showOverlay && <div className="profile-overlay" onClick={onClose}></div>}
 
@@ -255,37 +296,37 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
         />
       )}
 
-      {/* Panel */}
+      {/* Main Profile Panel */}
       <div className={`modern-profile-panel ${isFullTab ? 'full-tab' : ''}`}>
+        {/* Top Header Bar */}
         <div className="modern-profile-header-bar">
           <div className="modern-profile-title">
-            <span className="title-icon">👤</span> Profile
+            <div className="title-icon-badge">
+              <User size={18} />
+            </div>
+            <span>{isSelf ? "My Profile" : `${displayName}'s Profile`}</span>
           </div>
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            {onSettingsClick && (
-              <button
-                onClick={onSettingsClick}
-                className="modern-icon-btn"
-                title="Settings"
-              >
-                ⚙️
-              </button>
-            )}
-            {onClose && <button onClick={onClose} className="modern-icon-btn">✕</button>}
-          </div>
+
+          {onClose && (
+            <button onClick={onClose} className="modern-icon-btn" title="Close">
+              <X size={18} />
+            </button>
+          )}
         </div>
 
+        {/* Scrollable Body Content */}
         <div className="modern-profile-content">
           
-          {/* HERO SECTION */}
+          {/* HERO AVATAR & USER DETAILS */}
           <div className="modern-profile-hero">
             <div
               className={`modern-hero-avatar ${isSelf ? 'pointable' : ''}`}
               style={{
                 '--aura-color': auraColor,
+                background: user.avatar ? '#1e293b' : fallbackBg,
                 boxShadow: hasAura ? `0 0 25px ${auraColor}` : '0 10px 30px rgba(0,0,0,0.5)',
                 cursor: isSelf ? 'pointer' : 'default',
-                border: hasAura ? `3px solid ${auraColor}` : '3px solid rgba(255,255,255,0.1)'
+                border: hasAura ? `3px solid ${auraColor}` : '3px solid rgba(255,255,255,0.15)'
               }}
               onClick={handleAvatarClick}
             >
@@ -297,8 +338,17 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
                   onError={() => setImgError(true)} 
                 />
               ) : (
-                <span className="modern-avatar-initial">{(user.name || user.email || '?').charAt(0).toUpperCase()}</span>
+                <span className="modern-avatar-initial">{initials}</span>
               )}
+
+              {/* Camera overlay on hover for personal avatar edit */}
+              {isSelf && (
+                <div className="avatar-camera-overlay">
+                  <Camera size={20} />
+                  <span>Edit</span>
+                </div>
+              )}
+
               <div className={`modern-status-dot ${isOnline ? 'online' : 'offline'}`} />
             </div>
 
@@ -313,40 +363,65 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
                     autoFocus
                   />
                   <div className="modern-edit-actions">
-                    <button onClick={handleSaveName} className="modern-btn-save">✓</button>
-                    <button onClick={handleCancelName} className="modern-btn-cancel">✕</button>
+                    <button onClick={handleSaveName} className="modern-btn-save"><Check size={14} /></button>
+                    <button onClick={handleCancelName} className="modern-btn-cancel"><X size={14} /></button>
                   </div>
                 </div>
               ) : (
                 <div className="modern-name-row">
-                  <h2 className="modern-hero-name">{user.name || user.email}</h2>
-                  {isSelf && <button onClick={() => setEditingName(true)} className="modern-edit-icon">✏️</button>}
+                  <h2 className="modern-hero-name">{displayName}</h2>
+                  {isSelf && (
+                    <button onClick={() => setEditingName(true)} className="modern-edit-icon" title="Edit Display Name">
+                      <Edit3 size={14} />
+                    </button>
+                  )}
                 </div>
               )}
               
-              <div className="modern-hero-id">@{user.username || user._id.slice(-6)}</div>
-              <div className="modern-hero-status">{status}</div>
+              <div className="modern-hero-id">@{user.username || user._id?.slice(-6)}</div>
+              <div className="modern-hero-status">
+                <Clock size={12} /> {status}
+              </div>
             </div>
 
-            {/* ACTION BUTTONS */}
+            {/* ACTION DOCK: PERSONAL PROFILE vs OTHER USER PROFILE */}
             <div className="modern-hero-actions">
               {isSelf ? (
-                 <button className="modern-btn secondary" onClick={() => navigate("/settings")}>Settings</button>
+                <>
+                  <button className="modern-btn secondary" onClick={() => navigate("/settings")}>
+                    <Settings size={15} /> Settings
+                  </button>
+                  <button className="modern-btn secondary" onClick={handleShareProfile}>
+                    <Share2 size={15} /> {shareCopied ? "Copied!" : "Share Link"}
+                  </button>
+                </>
               ) : (
                 <>
-                  {!isConnected ? (
-                    <button className="modern-btn primary" disabled={isPending} onClick={handleConnectRequest}>
-                      {isPending ? "Requested" : "Connect"}
-                    </button>
-                  ) : (
+                  {isConnected ? (
                     <>
                       <button className="modern-btn primary" onClick={() => navigate(`/messages/${user._id}`)}>
-                        <span style={{marginRight: '6px'}}>💬</span> Message
+                        <MessageSquare size={16} /> Send Message
                       </button>
                       <button className="modern-btn danger" onClick={handleDisconnectClick}>
-                        Disconnect
+                        <UserMinus size={16} /> Disconnect
                       </button>
                     </>
+                  ) : (
+                    <button 
+                      className="modern-btn primary" 
+                      disabled={isPending} 
+                      onClick={handleConnectRequest}
+                    >
+                      {isPending ? (
+                        <>
+                          <Clock size={16} /> Requested
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus size={16} /> Connect Now
+                        </>
+                      )}
+                    </button>
                   )}
                 </>
               )}
@@ -361,20 +436,28 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
             onChange={handleAvatarChange}
           />
 
-          {/* STATS SECTION */}
+          {/* STATS DASHBOARD GRID */}
           <div className="modern-stats-grid">
             <div className="modern-stat-card">
-              <div className="stat-icon">👥</div>
+              <div className="stat-icon" style={{ color: '#FF7A18' }}>
+                <UserCheck size={18} />
+              </div>
               <div className="stat-value">{user.connections?.length || 0}</div>
               <div className="stat-label">Connections</div>
             </div>
+
             <div className="modern-stat-card">
-              <div className="stat-icon">🎙️</div>
+              <div className="stat-icon" style={{ color: '#a855f7' }}>
+                <Radio size={18} />
+              </div>
               <div className="stat-value">{roomArchives?.length || 0}</div>
               <div className="stat-label">Rooms</div>
             </div>
+
             <div className="modern-stat-card">
-              <div className="stat-icon">⚡</div>
+              <div className="stat-icon" style={{ color: '#10b981' }}>
+                <Activity size={18} />
+              </div>
               <div className="stat-value">{user.posts?.length || 0}</div>
               <div className="stat-label">Activity</div>
             </div>
@@ -384,7 +467,10 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
           {(hasAura || isSelf) && (
             <div className="modern-card modern-mood-card">
               <div className="modern-card-header">
-                <h3>Current Vibe</h3>
+                <h3>
+                  <Sparkles size={16} style={{ color: '#FF7A18', display: 'inline', marginRight: '6px' }} />
+                  Current Vibe
+                </h3>
               </div>
               
               {hasAura ? (
@@ -393,7 +479,7 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
                   <span className="vibe-text">{AURA_PRESETS.find(p => p.type === localAura?.type)?.label || localAura?.label || 'Vibing'}</span>
                 </div>
               ) : (
-                <div className="current-vibe-empty">No vibe set</div>
+                <div className="current-vibe-empty">No vibe set right now</div>
               )}
 
               {isSelf && (
@@ -419,7 +505,7 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
                         onClick={() => handleVibeClick(null)}
                         className="vibe-badge clear-vibe"
                       >
-                        Clear
+                        Clear Vibe
                       </button>
                     )}
                   </div>
@@ -431,9 +517,11 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
           {/* ABOUT SECTION */}
           <div className="modern-card modern-about-card">
             <div className="modern-card-header">
-              <h3>About {isSelf ? 'Me' : user.name?.split(' ')[0] || 'User'}</h3>
+              <h3>About {isSelf ? 'Me' : displayName.split(' ')[0]}</h3>
               {isSelf && !editingAbout && (
-                <button onClick={() => setEditingAbout(true)} className="modern-edit-icon">✏️</button>
+                <button onClick={() => setEditingAbout(true)} className="modern-edit-icon" title="Edit About Bio">
+                  <Edit3 size={14} />
+                </button>
               )}
             </div>
             <div className="modern-card-body">
@@ -468,7 +556,7 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
               {recentActivities.map(activity => (
                 <div key={activity.id} className="modern-activity-item">
                   <div className="activity-icon">
-                    {activity.type === 'connection' ? '🤝' : '🎙️'}
+                    {activity.type === 'connection' ? <UserCheck size={16} /> : <Radio size={16} />}
                   </div>
                   <div className="activity-info">
                     <div className="activity-text">{activity.text}</div>
@@ -479,13 +567,14 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
             </div>
           </div>
 
+          {/* LOGOUT BUTTON FOR PERSONAL PROFILE (FULL TAB) */}
           {isSelf && isFullTab && (
             <div className="modern-logout-section">
               <button className="modern-logout-btn" onClick={() => {
                 localStorage.removeItem('token');
                 window.location.href = "/login";
               }}>
-                <span className="icon">🚪</span> Logout
+                <LogOut size={18} /> Logout Account
               </button>
             </div>
           )}
@@ -497,3 +586,4 @@ function UserProfile({ user, onClose, userStatuses = {}, mediaMessages = [], sho
 }
 
 export default UserProfile;
+

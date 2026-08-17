@@ -1,12 +1,43 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft, User, Palette, Shield, Info, AlertTriangle, Check, Sparkles, Moon, Sun } from "lucide-react";
 import api, { deleteAccount, getMe } from "../services/api";
 import ConfirmModal from "../components/ui/ConfirmModal";
+import "./Settings.css";
+
+// Helper to generate initials from name or email
+function getInitials(name) {
+    if (!name) return "?";
+    const parts = name.trim().split(" ").filter(Boolean);
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+// Preset vibrant gradients for fallback avatar
+const AVATAR_GRADIENTS = [
+    "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
+    "linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)",
+    "linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)",
+    "linear-gradient(135deg, #f97316 0%, #e11d48 100%)",
+    "linear-gradient(135deg, #10b981 0%, #06b6d4 100%)",
+    "linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%)",
+];
+
+function getAvatarGradient(idOrName) {
+    if (!idOrName) return AVATAR_GRADIENTS[0];
+    let hash = 0;
+    const str = String(idOrName);
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return AVATAR_GRADIENTS[Math.abs(hash) % AVATAR_GRADIENTS.length];
+}
 
 export default function Settings({ theme, toggleTheme }) {
     const THEME_CHHAYA = "chhaya";
     const navigate = useNavigate();
 
+    const [user, setUser] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [passwordError, setPasswordError] = useState("");
     const [deletePassword, setDeletePassword] = useState("");
@@ -23,12 +54,13 @@ export default function Settings({ theme, toggleTheme }) {
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const user = await getMe();
-                if (user) {
-                  if (user.showOnlineStatus !== undefined) setShowOnlineStatus(user.showOnlineStatus);
-                  const userUsername = user.username || "";
-                  setUsername(userUsername);
-                  setTempUsername(userUsername);
+                const userData = await getMe();
+                if (userData) {
+                    setUser(userData);
+                    if (userData.showOnlineStatus !== undefined) setShowOnlineStatus(userData.showOnlineStatus);
+                    const userUsername = userData.username || "";
+                    setUsername(userUsername);
+                    setTempUsername(userUsername);
                 }
             } catch (err) {
                 console.error("Failed to fetch user settings", err);
@@ -50,13 +82,12 @@ export default function Settings({ theme, toggleTheme }) {
             setTempUsername(res.data.username);
             setUsernameStatus({ type: 'success', message: 'Username updated successfully!' });
             
-            // Clear success message after 3 seconds
             setTimeout(() => setUsernameStatus({ type: '', message: '' }), 3000);
         } catch (error) {
             console.error("Failed to update username", error);
             setUsernameStatus({ 
-              type: 'error', 
-              message: error.response?.data?.message || 'Failed to update username' 
+                type: 'error', 
+                message: error.response?.data?.message || 'Failed to update username' 
             });
         } finally {
             setIsUpdatingUsername(false);
@@ -95,226 +126,214 @@ export default function Settings({ theme, toggleTheme }) {
         }
     };
 
-    return (
-        <div className="settings-container" style={{ padding: '20px', color: 'var(--color-text-primary)' }}>
-            <div className="settings-top-bar" style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <button 
-                    onClick={() => navigate(-1)}
-                    className="back-btn"
-                    style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'var(--color-text-primary)',
-                        fontSize: '1.5rem',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '4px'
-                    }}
-                    title="Go Back"
-                >
-                    ←
-                </button>
-                <h2 style={{ margin: 0 }}>Settings</h2>
-            </div>
+    const displayName = user ? (user.name || user.username || user.email?.split('@')[0]) : "User Settings";
+    const initials = getInitials(displayName);
+    const fallbackBg = getAvatarGradient(user?._id || displayName);
 
-            <div style={{ padding: '1rem' }}>
-                {/* PROFILE SECTION */}
-                <div className="settings-section">
-                    <h3>Profile Info</h3>
-                    <div className="setting-item" style={{
-                        padding: '1.5rem',
-                        backgroundColor: 'var(--bg-panel, #222)',
-                        borderRadius: '12px',
-                        marginTop: '1rem',
-                        border: '1px solid var(--border-color, rgba(255,255,255,0.1))'
-                    }}>
-                        <div style={{ marginBottom: '16px' }}>
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '0.9rem' }}>Username</label>
-                            <div style={{ display: 'flex', gap: '10px' }}>
-                              <div style={{ position: 'relative', flex: 1 }}>
-                                <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#666' }}>@</span>
-                                <input 
-                                  type="text"
-                                  value={tempUsername}
-                                  onChange={(e) => setTempUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-                                  placeholder="new_username"
-                                  style={{
-                                    width: '100%',
-                                    padding: '10px 12px 10px 28px',
-                                    borderRadius: '8px',
-                                    backgroundColor: 'rgba(0,0,0,0.2)',
-                                    border: '1px solid var(--border-color)',
-                                    color: 'var(--color-text-primary)',
-                                    outline: 'none'
-                                  }}
+    return (
+        <div className="settings-wrapper">
+            <div className="settings-container">
+                {/* Top Navigation Bar */}
+                <div className="settings-top-bar">
+                    <button 
+                        onClick={() => navigate(-1)}
+                        className="back-btn-circle"
+                        title="Go Back"
+                    >
+                        <ArrowLeft size={18} />
+                    </button>
+                    <h2 className="settings-title">Settings</h2>
+                </div>
+
+                {/* User Profile Hero Banner Card */}
+                {user && (
+                    <div className="profile-hero-card">
+                        <div className="profile-hero-avatar-wrapper">
+                            {user.avatar ? (
+                                <div 
+                                    className="profile-hero-avatar" 
+                                    style={{ backgroundImage: `url("${user.avatar}")` }}
                                 />
-                              </div>
-                              <button
-                                onClick={handleUpdateUsername}
-                                disabled={isUpdatingUsername || tempUsername === username || !tempUsername}
-                                style={{
-                                  padding: '0 1.2rem',
-                                  backgroundColor: tempUsername === username ? '#333' : 'var(--accent-color, #25d366)',
-                                  color: '#fff',
-                                  border: 'none',
-                                  borderRadius: '8px',
-                                  cursor: (isUpdatingUsername || tempUsername === username) ? 'default' : 'pointer',
-                                  fontWeight: 600,
-                                  opacity: (tempUsername === username || !tempUsername) ? 0.6 : 1
-                                }}
-                              >
-                                {isUpdatingUsername ? 'Updating...' : 'Update'}
-                              </button>
-                            </div>
-                            {usernameStatus.message && (
-                              <div style={{ 
-                                marginTop: '10px', 
-                                fontSize: '0.85rem', 
-                                color: usernameStatus.type === 'error' ? '#ff6b6b' : '#25d366' 
-                              }}>
-                                {usernameStatus.message}
-                              </div>
+                            ) : (
+                                <div 
+                                    className="profile-hero-avatar fallback"
+                                    style={{ background: fallbackBg }}
+                                >
+                                    <span>{initials}</span>
+                                </div>
                             )}
-                            <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '8px' }}>
-                              Username can only contain lowercase letters, numbers, and underscores (3-20 chars).
+                        </div>
+
+                        <div className="profile-hero-info">
+                            <h3 className="profile-hero-name">{displayName}</h3>
+                            <div className="profile-hero-badges">
+                                {username && (
+                                    <span className="profile-handle-badge">@{username}</span>
+                                )}
+                                {user.email && (
+                                    <span className="profile-email-badge">{user.email}</span>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Settings Sections */}
+                <div className="settings-sections-list">
+                    {/* PROFILE INFO SECTION */}
+                    <div className="settings-section-card">
+                        <div className="section-header">
+                            <div className="section-icon-badge profile">
+                                <User size={18} />
+                            </div>
+                            <h3 className="section-title">Profile Info</h3>
+                        </div>
+
+                        <div className="username-input-block">
+                            <label className="mr-label" style={{ display: 'block', marginBottom: '8px', fontSize: '0.88rem', fontWeight: 600, color: 'rgba(255, 255, 255, 0.7)' }}>
+                                Username
+                            </label>
+                            <div className="username-input-wrapper">
+                                <div className="input-at-field">
+                                    <span className="input-at-symbol">@</span>
+                                    <input 
+                                        type="text"
+                                        className="glass-setting-input"
+                                        value={tempUsername}
+                                        onChange={(e) => setTempUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                                        placeholder="new_username"
+                                    />
+                                </div>
+                                <button
+                                    onClick={handleUpdateUsername}
+                                    disabled={isUpdatingUsername || tempUsername === username || !tempUsername}
+                                    className="update-username-btn"
+                                >
+                                    <Sparkles size={14} />
+                                    {isUpdatingUsername ? 'Updating...' : 'Update'}
+                                </button>
+                            </div>
+
+                            {usernameStatus.message && (
+                                <div className={`status-feedback-msg ${usernameStatus.type}`}>
+                                    {usernameStatus.message}
+                                </div>
+                            )}
+                            <p className="setting-hint-text">
+                                Username can only contain lowercase letters, numbers, and underscores (3-20 chars).
                             </p>
                         </div>
                     </div>
-                </div>
 
-                <div className="settings-section" style={{ marginTop: '2rem' }}>
-                    <h3>Appearance</h3>
-                    <div className="setting-item" style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '1rem',
-                        backgroundColor: 'var(--bg-panel, #222)',
-                        borderRadius: '12px',
-                        marginTop: '1rem',
-                        border: '1px solid var(--border-color, rgba(255,255,255,0.1))'
-                    }}>
-                        <div>
-                            <div style={{ fontWeight: 600 }}>Theme Mode</div>
-                            <div style={{ fontSize: '0.9rem', color: '#888' }}>
-                                {theme === THEME_CHHAYA ? 'Chhaya (Dark)' : 'Prakash (Light)'}
+                    {/* APPEARANCE SECTION */}
+                    <div className="settings-section-card">
+                        <div className="section-header">
+                            <div className="section-icon-badge appearance">
+                                <Palette size={18} />
+                            </div>
+                            <h3 className="section-title">Appearance & Theme</h3>
+                        </div>
+
+                        <div className="theme-cards-grid">
+                            <div 
+                                className={`theme-card ${theme === THEME_CHHAYA ? 'active' : ''}`}
+                                onClick={() => theme !== THEME_CHHAYA && toggleTheme()}
+                            >
+                                <div className="theme-preview-box dark">
+                                    <Moon size={24} />
+                                </div>
+                                <div className="theme-card-info">
+                                    <span className="theme-name">Chhaya (Dark)</span>
+                                    {theme === THEME_CHHAYA && (
+                                        <div className="theme-check-badge">
+                                            <Check size={12} />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div 
+                                className={`theme-card ${theme !== THEME_CHHAYA ? 'active' : ''}`}
+                                onClick={() => theme === THEME_CHHAYA && toggleTheme()}
+                            >
+                                <div className="theme-preview-box light">
+                                    <Sun size={24} />
+                                </div>
+                                <div className="theme-card-info">
+                                    <span className="theme-name">Prakash (Light)</span>
+                                    {theme !== THEME_CHHAYA && (
+                                        <div className="theme-check-badge">
+                                            <Check size={12} />
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                        <button
-                            onClick={toggleTheme}
-                            className="action-btn"
-                            style={{
-                                width: 'auto',
-                                padding: '0.5rem 1rem',
-                                backgroundColor: 'var(--accent-color, #25d366)',
-                                borderRadius: '8px',
-                                border: 'none',
-                                cursor: 'pointer',
-                                color: '#fff'
-                            }}
-                        >
-                            Switch to {theme === THEME_CHHAYA ? 'Prakash' : 'Chhaya'}
-                        </button>
                     </div>
-                </div>
 
-                <div className="settings-section" style={{ marginTop: '2rem' }}>
-                    <h3>Privacy</h3>
-                    <div className="setting-item" style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '1rem',
-                        backgroundColor: 'var(--bg-panel, #222)',
-                        borderRadius: '12px',
-                        marginTop: '1rem',
-                        border: '1px solid var(--border-color, rgba(255,255,255,0.1))'
-                    }}>
-                        <div>
-                            <div style={{ fontWeight: 600 }}>Show Online Status</div>
-                            <div style={{ fontSize: '0.9rem', color: '#888', marginTop: '4px' }}>
-                                Allow others to see when you are online
+                    {/* PRIVACY SECTION */}
+                    <div className="settings-section-card">
+                        <div className="section-header">
+                            <div className="section-icon-badge privacy">
+                                <Shield size={18} />
                             </div>
+                            <h3 className="section-title">Privacy & Security</h3>
                         </div>
-                        <label className="toggle-switch" style={{
-                            position: 'relative',
-                            display: 'inline-block',
-                            width: '44px',
-                            height: '24px'
-                        }}>
-                            <input
-                                type="checkbox"
-                                checked={showOnlineStatus}
-                                onChange={handleTogglePrivacy}
-                                disabled={isUpdatingPrivacy}
-                                style={{ opacity: 0, width: 0, height: 0 }}
-                            />
-                            <span className="slider" style={{
-                                position: 'absolute',
-                                cursor: 'pointer',
-                                top: 0, left: 0, right: 0, bottom: 0,
-                                backgroundColor: showOnlineStatus ? 'var(--accent-color, #25d366)' : '#ccc',
-                                transition: '.4s',
-                                borderRadius: '24px'
-                            }}>
-                                <span style={{
-                                    position: 'absolute',
-                                    content: '""',
-                                    height: '18px',
-                                    width: '18px',
-                                    left: showOnlineStatus ? '22px' : '3px',
-                                    bottom: '3px',
-                                    backgroundColor: 'white',
-                                    transition: '.4s',
-                                    borderRadius: '50%'
-                                }}></span>
-                            </span>
-                        </label>
+
+                        <div className="setting-row-item">
+                            <div>
+                                <div className="setting-item-label">Show Online Status</div>
+                                <div className="setting-item-desc">Allow others to see when you are active online</div>
+                            </div>
+                            <label className="glass-switch">
+                                <input
+                                    type="checkbox"
+                                    checked={showOnlineStatus}
+                                    onChange={handleTogglePrivacy}
+                                    disabled={isUpdatingPrivacy}
+                                />
+                                <span className="glass-switch-slider"></span>
+                            </label>
+                        </div>
                     </div>
-                </div>
 
-                <div className="settings-section" style={{ marginTop: '2rem' }}>
-                    <h3>About</h3>
-                    <p style={{ color: '#888' }}>Connectify App Layout Version</p>
-                    <p style={{ color: '#888' }}>Connectify v1.0.0 framework</p>
-                </div>
-
-                <div className="settings-section" style={{ marginTop: '3rem', borderTop: '1px solid var(--border-color, rgba(255,255,255,0.1))', paddingTop: '2rem' }}>
-                    <h3 style={{ color: 'var(--color-status-danger, #ef4444)' }}>Danger Zone</h3>
-                    <div className="setting-item" style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '1rem',
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        borderRadius: '12px',
-                        marginTop: '1rem',
-                        border: '1px solid rgba(239, 68, 68, 0.2)'
-                    }}>
-                        <div>
-                            <div style={{ fontWeight: 600, color: 'var(--color-status-danger, #ef4444)' }}>Delete Account</div>
-                            <div style={{ fontSize: '0.9rem', color: '#888', marginTop: '4px' }}>
-                                Permanently remove your account and all data.
+                    {/* ABOUT SECTION */}
+                    <div className="settings-section-card">
+                        <div className="section-header">
+                            <div className="section-icon-badge about">
+                                <Info size={18} />
                             </div>
+                            <h3 className="section-title">About App</h3>
                         </div>
-                        <button
-                            onClick={() => setShowDeleteModal(true)}
-                            className="action-btn"
-                            style={{
-                                width: 'auto',
-                                padding: '0.5rem 1rem',
-                                backgroundColor: 'var(--color-status-danger, #ef4444)',
-                                borderRadius: '8px',
-                                border: 'none',
-                                cursor: 'pointer',
-                                color: '#fff',
-                                fontWeight: 600
-                            }}
-                        >
-                            Delete Account
-                        </button>
+
+                        <div className="about-pills-grid">
+                            <span className="about-pill">Connectify v1.0.0</span>
+                            <span className="about-pill">Ultra Glass Engine</span>
+                            <span className="about-pill">Real-time WebSockets</span>
+                        </div>
+                    </div>
+
+                    {/* DANGER ZONE SECTION */}
+                    <div className="settings-section-card danger-section">
+                        <div className="section-header">
+                            <div className="section-icon-badge danger">
+                                <AlertTriangle size={18} />
+                            </div>
+                            <h3 className="section-title" style={{ color: '#fca5a5' }}>Danger Zone</h3>
+                        </div>
+
+                        <div className="setting-row-item">
+                            <div>
+                                <div className="setting-item-label" style={{ color: '#fca5a5' }}>Delete Account</div>
+                                <div className="setting-item-desc">Permanently remove your profile, messages, and connections</div>
+                            </div>
+                            <button
+                                onClick={() => setShowDeleteModal(true)}
+                                className="delete-acc-btn"
+                            >
+                                Delete Account
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -358,7 +377,7 @@ export default function Settings({ theme, toggleTheme }) {
                             onChange={(e) => { setDeletePassword(e.target.value); setPasswordError(""); }}
                             placeholder="Your password"
                             style={{
-                                width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'rgba(0,0,0,0.2)', color: 'var(--color-text-primary)'
+                                width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'rgba(0,0,0,0.25)', color: 'var(--color-text-primary)'
                             }}
                         />
                         {passwordError && (
