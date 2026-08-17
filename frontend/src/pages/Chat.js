@@ -1288,7 +1288,20 @@ function Chat({ token, onLogout, theme, toggleTheme }) {
         {activeTab === 'groups' ? (
           <div className="sidebar-items-scroll">
             {groups.length === 0 ? (
-              <div className="sidebar-empty-state">No group conversations yet</div>
+              <div className="sidebar-empty-state-card">
+                <div className="empty-icon-circle">
+                  <Sparkles size={24} style={{ color: '#FF7A18' }} />
+                </div>
+                <h4>No groups yet</h4>
+                <p>Create a group and bring people together.</p>
+                <button
+                  type="button"
+                  className="sidebar-empty-cta-btn"
+                  onClick={() => setShowCreateGroupModal(true)}
+                >
+                  + Create Group
+                </button>
+              </div>
             ) : (
               groups.map((g) => {
                 const isSelected = selectedGroup?._id === g._id;
@@ -1346,51 +1359,68 @@ function Chat({ token, onLogout, theme, toggleTheme }) {
               </div>
             )}
 
-            {users.map((u) => {
-              const isSelected = selectedUser?._id === u._id;
-              const userLastMsg = lastMessages[getChatId(u._id)];
-              const displayName = u.name || u.username || u.email?.split('@')[0] || 'User';
-
-              return (
-                <div
-                  key={u._id}
-                  className={`modern-conversation-item ${isSelected ? 'active' : ''}`}
-                  onClick={() => {
-                    navigate(`/messages/${u._id}`);
-                    setMediaTab('media');
-                  }}
+            {users.length === 0 ? (
+              <div className="sidebar-empty-state-card">
+                <div className="empty-icon-circle">
+                  <Sparkles size={24} style={{ color: '#FF7A18' }} />
+                </div>
+                <h4>No conversations yet</h4>
+                <p>Connect with someone and start your first conversation.</p>
+                <button
+                  type="button"
+                  className="sidebar-empty-cta-btn"
+                  onClick={() => navigate('/')}
                 >
+                  ✦ Discover People
+                </button>
+              </div>
+            ) : (
+              users.map((u) => {
+                const isSelected = selectedUser?._id === u._id;
+                const userLastMsg = lastMessages[getChatId(u._id)];
+                const displayName = u.name || u.username || u.email?.split('@')[0] || 'User';
+
+                return (
                   <div
-                    className={`item-avatar ${u.aura ? 'aura-active' : ''}`}
-                    style={u.aura ? { "--aura-color": u.aura.color } : {}}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedAvatarUser(u);
-                      setShowAvatarViewer(true);
+                    key={u._id}
+                    className={`modern-conversation-item ${isSelected ? 'active' : ''}`}
+                    onClick={() => {
+                      navigate(`/messages/${u._id}`);
+                      setMediaTab('media');
                     }}
                   >
-                    {u.avatar ? (
-                      <img src={u.avatar} alt="Avatar" className="avatar-img" />
-                    ) : (
-                      displayName.charAt(0).toUpperCase()
-                    )}
-                  </div>
-                  <div className="item-info">
-                    <div className="item-top-line">
-                      <span className="item-name">{displayName}</span>
-                      {userLastMsg && (
-                        <span className="timestamp-span">
-                          {formatTime(userLastMsg.timestamp)}
-                        </span>
+                    <div
+                      className={`item-avatar ${u.aura ? 'aura-active' : ''}`}
+                      style={u.aura ? { "--aura-color": u.aura.color } : {}}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedAvatarUser(u);
+                        setShowAvatarViewer(true);
+                      }}
+                    >
+                      {u.avatar ? (
+                        <img src={u.avatar} alt="Avatar" className="avatar-img" />
+                      ) : (
+                        displayName.charAt(0).toUpperCase()
                       )}
                     </div>
-                    <div className="item-last-message">
-                      {userLastMsg ? userLastMsg.preview : 'No messages yet'}
+                    <div className="item-info">
+                      <div className="item-top-line">
+                        <span className="item-name">{displayName}</span>
+                        {userLastMsg && (
+                          <span className="timestamp-span">
+                            {formatTime(userLastMsg.timestamp)}
+                          </span>
+                        )}
+                      </div>
+                      <div className="item-last-message">
+                        {userLastMsg ? userLastMsg.preview : 'No messages yet'}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         )}
       </div>

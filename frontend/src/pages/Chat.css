@@ -1140,3 +1140,63 @@
     color: rgba(255, 255, 255, 0.6);
     line-height: 1.5;
 }
+
+/* Sidebar Tab Empty Cards */
+.sidebar-empty-state-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 36px 20px;
+    margin: 20px 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.empty-icon-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 122, 24, 0.12);
+    border: 1px solid rgba(255, 122, 24, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+    box-shadow: 0 0 20px rgba(255, 122, 24, 0.2);
+}
+
+.sidebar-empty-state-card h4 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 6px 0;
+}
+
+.sidebar-empty-state-card p {
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.4;
+    margin: 0 0 18px 0;
+    max-width: 240px;
+}
+
+.sidebar-empty-cta-btn {
+    background: linear-gradient(135deg, #FF7A18 0%, #FF3D81 100%);
+    color: #ffffff;
+    border: none;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 9px 18px;
+    border-radius: 99px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(255, 122, 24, 0.35);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sidebar-empty-cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 122, 24, 0.5);
+}
