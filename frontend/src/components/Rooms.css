@@ -365,4 +365,33 @@ html[data-theme="prakash"] .room-card-title {
 
 html[data-theme="prakash"] .rooms-header-left h2 {
     color: #0f172a;
+}
+
+/* Mobile & Android Responsive Breakpoints */
+@media (max-width: 768px) {
+    .rooms-page {
+        padding: 16px 14px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .rooms-header-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+
+    .rooms-header-left h2 {
+        font-size: 1.4rem;
+    }
+
+    .rooms-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .room-card {
+        padding: 16px;
+    }
 }

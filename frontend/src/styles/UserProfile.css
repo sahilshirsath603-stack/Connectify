@@ -919,52 +919,71 @@
 /* Responsive Overrides for Android Mobile & Windows Widescreen */
 @media (max-width: 768px) {
     .modern-profile-panel {
-        width: 100vw !important;
-        max-width: 100vw !important;
+        width: 100% !important;
+        max-width: 100% !important;
         border-left: none;
         border-radius: 0;
+        box-sizing: border-box;
     }
 
     .modern-profile-panel.full-tab {
-        padding: 16px 12px 40px 12px;
+        padding: 0;
         max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .modern-profile-header-bar {
-        padding: 16px 20px;
+        padding: 14px 16px;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .modern-profile-content {
-        padding: 20px 16px;
-        gap: 18px;
+        padding: 16px 14px 40px 14px;
+        gap: 16px;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .modern-hero-avatar {
-        width: 100px;
-        height: 100px;
+        width: 96px;
+        height: 96px;
     }
 
     .modern-avatar-initial {
-        font-size: 2.2rem;
+        font-size: 2rem;
     }
 
     .modern-hero-name {
-        font-size: 1.4rem;
+        font-size: 1.35rem;
     }
 
     .modern-stats-grid {
-        gap: 10px;
+        gap: 8px;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .modern-stat-card {
-        padding: 14px 8px;
+        padding: 10px 4px;
     }
 
     .stat-value {
-        font-size: 1.15rem;
+        font-size: 1.1rem;
     }
 
     .stat-label {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
+        letter-spacing: 0;
+    }
+
+    .modern-hero-actions {
+        width: 100%;
+    }
+
+    .modern-btn {
+        padding: 8px 16px;
+        font-size: 0.85rem;
     }
 }
